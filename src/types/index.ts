@@ -66,7 +66,6 @@ export interface ParsedRecordItem {
 export interface AppSettings {
   currency: 'CNY'
   defaultMonthBudget?: number
-  aiProvider?: string
   aiModel?: string
 }
 

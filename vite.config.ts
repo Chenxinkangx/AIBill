@@ -35,10 +35,6 @@ export default defineConfig({
             urlPattern: /^https:\/\/api\.deepseek\.com\/.*/i,
             handler: 'NetworkOnly',
           },
-          {
-            urlPattern: /^https:\/\/api\.openai\.com\/.*/i,
-            handler: 'NetworkOnly',
-          },
         ],
       },
     }),

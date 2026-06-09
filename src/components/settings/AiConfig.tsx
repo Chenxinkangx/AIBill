@@ -22,30 +22,16 @@ export default function AiConfig() {
     <div className="space-y-3">
       <h2 className="text-sm font-medium text-gray-500">AI 配置</h2>
 
-      {/* AI Provider */}
-      <div className="bg-white rounded-xl px-4 py-3 space-y-1">
-        <label className="text-xs text-gray-400">AI 服务商</label>
-        <select
-          value={settings?.aiProvider ?? 'deepseek'}
-          onChange={(e) => updateSettings({ aiProvider: e.target.value })}
-          className="w-full text-sm text-gray-700 outline-none bg-transparent"
-        >
-          <option value="deepseek">DeepSeek</option>
-          <option value="openai">OpenAI</option>
-        </select>
-      </div>
-
       {/* AI Model */}
       <div className="bg-white rounded-xl px-4 py-3 space-y-1">
         <label className="text-xs text-gray-400">AI 模型</label>
         <select
-          value={settings?.aiModel ?? 'deepseek-chat'}
+          value={settings?.aiModel ?? 'deepseek-v4-flash'}
           onChange={(e) => updateSettings({ aiModel: e.target.value })}
           className="w-full text-sm text-gray-700 outline-none bg-transparent"
         >
-          <option value="deepseek-chat">DeepSeek Chat</option>
-          <option value="deepseek-reasoner">DeepSeek Reasoner</option>
-          <option value="gpt-4o-mini">GPT-4o-mini</option>
+          <option value="deepseek-v4-flash">DeepSeek V4 Flash</option>
+          <option value="deepseek-v4-pro">DeepSeek V4 Pro</option>
         </select>
       </div>
 
