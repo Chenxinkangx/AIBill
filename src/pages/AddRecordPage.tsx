@@ -6,6 +6,8 @@ import { parseNaturalLanguageRecord } from '../services/ai/parseRecord'
 import { getToday } from '../utils/date'
 import type { Category, ParsedRecordItem } from '../types'
 import ManualForm from '../components/record/ManualForm'
+import AiInputBox from '../components/record/AiInputBox'
+import AiParseResultList from '../components/record/AiParseResultList'
 import type { ManualRecordFormValues } from '../services/record/validation'
 
 export default function AddRecordPage() {
@@ -155,25 +157,12 @@ export default function AddRecordPage() {
       {/* AI mode */}
       {mode === 'ai' && (
         <div className="space-y-4">
-          <div className="bg-white rounded-xl p-4 space-y-3">
-            <label className="text-sm font-medium text-gray-600">
-              输入消费记录
-            </label>
-            <textarea
-              value={aiInput}
-              onChange={(e) => setAiInput(e.target.value)}
-              placeholder="例如：今天午饭18，地铁4，买书36，电影45"
-              rows={3}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-indigo-400 transition-colors resize-none placeholder:text-gray-300"
-            />
-            <button
-              onClick={handleParse}
-              disabled={parsing || !aiInput.trim()}
-              className="w-full py-2.5 bg-indigo-500 text-white rounded-xl text-sm font-medium hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {parsing ? 'AI 解析中...' : '智能识别'}
-            </button>
-          </div>
+          <AiInputBox
+            value={aiInput}
+            onChange={setAiInput}
+            onParse={handleParse}
+            parsing={parsing}
+          />
 
           {/* AI Error */}
           {aiError && (
@@ -190,97 +179,14 @@ export default function AddRecordPage() {
             </div>
           )}
 
-          {/* Parsed results */}
-          {parsedItems.length > 0 && (
-            <div className="bg-white rounded-xl overflow-hidden">
-              <div className="px-4 py-2.5 border-b border-gray-50">
-                <p className="text-sm font-medium text-gray-700">
-                  识别结果（{parsedItems.length} 条）
-                </p>
-              </div>
-              <div className="divide-y divide-gray-50">
-                {parsedItems.map((item, index) => (
-                  <div key={index} className="px-4 py-3 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        {/* Low confidence warning */}
-                        {item.confidence < 0.7 && (
-                          <span className="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded shrink-0">
-                            请确认
-                          </span>
-                        )}
-                        <input
-                          value={item.title}
-                          onChange={(e) =>
-                            handleUpdateParsedItem(index, 'title', e.target.value)
-                          }
-                          className="text-sm font-medium text-gray-800 outline-none bg-transparent flex-1 min-w-0"
-                        />
-                      </div>
-                      <button
-                        onClick={() => handleRemoveParsedItem(index)}
-                        className="text-red-400 hover:text-red-600 text-xs shrink-0 ml-2"
-                      >
-                        删除
-                      </button>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-sm">
-                      {/* Amount */}
-                      <input
-                        type="number"
-                        value={item.amount}
-                        onChange={(e) =>
-                          handleUpdateParsedItem(index, 'amount', Number(e.target.value))
-                        }
-                        className="w-20 px-2 py-1 bg-gray-50 rounded-lg text-gray-700 text-sm outline-none [appearance:textfield]"
-                      />
-                      <span className="text-gray-300">|</span>
-                      {/* Category select */}
-                      <select
-                        value={item.categoryId ?? ''}
-                        onChange={(e) => {
-                          const cat = categories.find((c) => c.id === e.target.value)
-                          handleUpdateParsedItem(index, 'categoryId', e.target.value)
-                          handleUpdateParsedItem(index, 'categoryName', cat?.name ?? '')
-                        }}
-                        className="text-sm text-gray-600 outline-none bg-transparent"
-                      >
-                        {categories
-                          .filter((c) => c.budgetable || c.id === 'income')
-                          .map((cat) => (
-                            <option key={cat.id} value={cat.id}>
-                              {cat.name}
-                            </option>
-                          ))}
-                      </select>
-                      <span className="text-gray-300">|</span>
-                      {/* Date */}
-                      <input
-                        type="date"
-                        value={item.date}
-                        onChange={(e) =>
-                          handleUpdateParsedItem(index, 'date', e.target.value)
-                        }
-                        className="text-xs text-gray-500 outline-none bg-transparent"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Confirm button */}
-              <div className="px-4 py-3 border-t border-gray-50">
-                <button
-                  onClick={handleConfirmAi}
-                  disabled={saving || parsedItems.length === 0}
-                  className="w-full py-2.5 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {saving ? '保存中...' : `确认保存（${parsedItems.length} 条）`}
-                </button>
-              </div>
-            </div>
-          )}
+          <AiParseResultList
+            items={parsedItems}
+            categories={categories}
+            onUpdate={handleUpdateParsedItem}
+            onRemove={handleRemoveParsedItem}
+            onConfirm={handleConfirmAi}
+            saving={saving}
+          />
         </div>
       )}
 
