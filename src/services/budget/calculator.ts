@@ -7,15 +7,17 @@ import type {
   CategoryBudgetStatus,
 } from '../../types'
 import { getRemainingDaysInCurrentMonth, getMonthProgress, getMonthDateRange, isCurrentMonth } from '../../utils/date'
+import { sumMoney } from '../../utils/money'
 
 /**
  * 计算某月份的总支出金额
  */
 export function getMonthlyExpense(records: RecordItem[], month: string): number {
   const { startDate, endDate } = getMonthDateRange(month)
-  return records
+  const amounts = records
     .filter((r) => r.type === 'expense' && r.date >= startDate && r.date <= endDate)
-    .reduce((sum, r) => sum + r.amount, 0)
+    .map((r) => r.amount)
+  return sumMoney(amounts)
 }
 
 /**
@@ -27,7 +29,7 @@ export function getCategoryExpense(
   categoryId: string
 ): number {
   const { startDate, endDate } = getMonthDateRange(month)
-  return records
+  const amounts = records
     .filter(
       (r) =>
         r.type === 'expense' &&
@@ -35,7 +37,8 @@ export function getCategoryExpense(
         r.date >= startDate &&
         r.date <= endDate
     )
-    .reduce((sum, r) => sum + r.amount, 0)
+    .map((r) => r.amount)
+  return sumMoney(amounts)
 }
 
 /**

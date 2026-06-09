@@ -1,5 +1,6 @@
 import type { RecordItem, Category } from '../../types'
 import RecordCard from './RecordCard'
+import { sumMoney } from '../../utils/money'
 
 interface Props {
   date: string
@@ -39,12 +40,12 @@ export default function RecordGroup({
   else if (isYesterday) dateLabel = '昨天'
   else dateLabel = `${d.getMonth() + 1}月${d.getDate()}日`
 
-  const totalExpense = records
-    .filter((r) => r.type === 'expense')
-    .reduce((s, r) => s + r.amount, 0)
-  const totalIncome = records
-    .filter((r) => r.type === 'income')
-    .reduce((s, r) => s + r.amount, 0)
+  const totalExpense = sumMoney(
+    records.filter((r) => r.type === 'expense').map((r) => r.amount)
+  )
+  const totalIncome = sumMoney(
+    records.filter((r) => r.type === 'income').map((r) => r.amount)
+  )
 
   return (
     <div className="bg-white rounded-xl overflow-hidden">

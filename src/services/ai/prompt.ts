@@ -33,5 +33,6 @@ export function buildPrompt(input: string, categories: Category[], today: string
 
 用户输入：${input}
 
-请只返回 JSON 数组，不包含任何其他文字。`
+请只返回 JSON 数组，不包含任何其他文字。格式如下：
+[{"title":"消费名称","amount":金额数字,"categoryName":"分类名称","type":"expense或income","date":"YYYY-MM-DD","confidence":0-1之间的数字}]`
 }

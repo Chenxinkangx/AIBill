@@ -1,4 +1,4 @@
-import { formatMoney } from '../../utils/money'
+import { formatMoney, formatPercent } from '../../utils/money'
 
 interface Props {
   totalBudget: number
@@ -81,7 +81,7 @@ export default function BudgetSummary({
           />
         </div>
         <p className="text-right text-xs text-gray-400">
-          已使用 {Math.round(usageRate * 100)}%
+          已使用 {formatPercent(usageRate)}
         </p>
       </div>
     </div>

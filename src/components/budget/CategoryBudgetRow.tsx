@@ -1,4 +1,4 @@
-import { formatMoney } from '../../utils/money'
+import { formatMoney, formatPercent } from '../../utils/money'
 import BudgetProgressBar from './BudgetProgressBar'
 
 interface Props {
@@ -66,7 +66,7 @@ export default function CategoryBudgetRow({
                 ? '接近预算上限'
                 : '预算充足'}
           </span>
-          <span className="text-gray-400">{Math.round(usageRate * 100)}%</span>
+          <span className="text-gray-400">{formatPercent(usageRate)}</span>
         </div>
       )}
     </div>
