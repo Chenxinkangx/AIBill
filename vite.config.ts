@@ -32,7 +32,7 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/api\.anthropic\.com\/.*/i,
+            urlPattern: /^https:\/\/api\.deepseek\.com\/.*/i,
             handler: 'NetworkOnly',
           },
           {

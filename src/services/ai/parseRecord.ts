@@ -35,8 +35,8 @@ export async function parseNaturalLanguageRecord(
   const prompt = buildPrompt(input, categories, today)
   const response = await callLlmApi(prompt, {
     apiKey,
-    model: settings.settings?.aiModel ?? 'claude-sonnet-4-20250514',
-    provider: settings.settings?.aiProvider ?? 'claude',
+    model: settings.settings?.aiModel ?? 'deepseek-chat',
+    provider: settings.settings?.aiProvider ?? 'deepseek',
   })
 
   if (!response.success || !response.data) {

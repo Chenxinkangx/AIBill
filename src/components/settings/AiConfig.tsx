@@ -26,11 +26,11 @@ export default function AiConfig() {
       <div className="bg-white rounded-xl px-4 py-3 space-y-1">
         <label className="text-xs text-gray-400">AI 服务商</label>
         <select
-          value={settings?.aiProvider ?? 'claude'}
+          value={settings?.aiProvider ?? 'deepseek'}
           onChange={(e) => updateSettings({ aiProvider: e.target.value })}
           className="w-full text-sm text-gray-700 outline-none bg-transparent"
         >
-          <option value="claude">Claude (Anthropic)</option>
+          <option value="deepseek">DeepSeek</option>
           <option value="openai">OpenAI</option>
         </select>
       </div>
@@ -39,13 +39,12 @@ export default function AiConfig() {
       <div className="bg-white rounded-xl px-4 py-3 space-y-1">
         <label className="text-xs text-gray-400">AI 模型</label>
         <select
-          value={settings?.aiModel ?? 'claude-sonnet-4-20250514'}
+          value={settings?.aiModel ?? 'deepseek-chat'}
           onChange={(e) => updateSettings({ aiModel: e.target.value })}
           className="w-full text-sm text-gray-700 outline-none bg-transparent"
         >
-          <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
-          <option value="claude-haiku-3-5-20241022">Claude Haiku 3.5</option>
-          <option value="gpt-4o">GPT-4o</option>
+          <option value="deepseek-chat">DeepSeek Chat</option>
+          <option value="deepseek-reasoner">DeepSeek Reasoner</option>
           <option value="gpt-4o-mini">GPT-4o-mini</option>
         </select>
       </div>
