@@ -30,22 +30,6 @@ export function useRecords(month: string, categoryFilter: string = 'all') {
 
   const refresh = load
 
-  const removeRecord = useCallback(async (id: string) => {
-    await db.records.delete(id)
-    setRecords((prev) => prev.filter((r) => r.id !== id))
-  }, [])
-
-  const updateRecordField = useCallback(
-    async (id: string, partial: Partial<RecordItem>) => {
-      const now = new Date().toISOString()
-      await db.records.update(id, { ...partial, updatedAt: now })
-      setRecords((prev) =>
-        prev.map((r) => (r.id === id ? { ...r, ...partial, updatedAt: now } : r))
-      )
-    },
-    []
-  )
-
   // Group records by date
   const groupedRecords = records.reduce<
     Record<string, RecordItem[]>
@@ -77,8 +61,6 @@ export function useRecords(month: string, categoryFilter: string = 'all') {
     categories,
     loading,
     refresh,
-    removeRecord,
-    updateRecordField,
     getCategoryName,
   }
 }
