@@ -9,6 +9,7 @@ interface Props {
   usageRate: number
   status: 'normal' | 'warning' | 'overspent'
   onBudgetChange: (value: number) => void
+  onRename?: () => void
   onArchive?: () => void
 }
 
@@ -20,6 +21,7 @@ export default function CategoryBudgetRow({
   usageRate,
   status,
   onBudgetChange,
+  onRename,
   onArchive,
 }: Props) {
   return (
@@ -34,6 +36,15 @@ export default function CategoryBudgetRow({
           <span className="text-xs text-gray-400">
             {formatMoney(spent)} / {formatMoney(budget || 0)}
           </span>
+          {onRename && (
+            <button
+              type="button"
+              onClick={onRename}
+              className="text-xs text-gray-300 hover:text-indigo-500"
+            >
+              编辑
+            </button>
+          )}
           {onArchive && (
             <button
               type="button"

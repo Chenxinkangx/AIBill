@@ -80,6 +80,18 @@ export default function AddRecordPage() {
 
   const handleConfirmAi = async () => {
     if (parsedItems.length === 0) return
+    const hasInvalidItem = parsedItems.some(
+      (item) =>
+        !item.title.trim() ||
+        !item.amount ||
+        item.amount <= 0 ||
+        !item.date ||
+        (item.type === 'expense' && (!item.categoryId || item.categoryId === 'income'))
+    )
+    if (hasInvalidItem) {
+      showToast('error', '请检查识别结果中的金额、分类和日期')
+      return
+    }
 
     setSaving(true)
 

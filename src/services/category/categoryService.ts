@@ -39,3 +39,46 @@ export async function archiveCategory(categoryId: string): Promise<void> {
   }
   await db.categories.update(categoryId, { archived: true })
 }
+
+export async function renameCategory(categoryId: string, name: string): Promise<void> {
+  const trimmed = name.trim()
+  if (!trimmed) {
+    throw new Error('请填写分类名称')
+  }
+
+  const category = await db.categories.get(categoryId)
+  if (!category) {
+    throw new Error('分类不存在')
+  }
+  if (category.system || category.id === 'income') {
+    throw new Error('系统分类不能编辑')
+  }
+
+  const existing = await db.categories
+    .filter((item) => item.id !== categoryId && item.name === trimmed && !item.archived)
+    .first()
+  if (existing) {
+    throw new Error('分类已存在')
+  }
+
+  await db.categories.update(categoryId, { name: trimmed })
+}
+
+export async function restoreCategory(categoryId: string): Promise<void> {
+  const category = await db.categories.get(categoryId)
+  if (!category) {
+    throw new Error('分类不存在')
+  }
+  if (category.system || category.id === 'income') {
+    throw new Error('系统分类不能恢复')
+  }
+
+  const existing = await db.categories
+    .filter((item) => item.id !== categoryId && item.name === category.name && !item.archived)
+    .first()
+  if (existing) {
+    throw new Error('存在同名启用分类')
+  }
+
+  await db.categories.update(categoryId, { archived: false })
+}

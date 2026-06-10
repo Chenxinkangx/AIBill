@@ -10,7 +10,12 @@ import MonthPicker from '../components/common/MonthPicker'
 import TotalBudgetInput from '../components/budget/TotalBudgetInput'
 import CategoryBudgetRow from '../components/budget/CategoryBudgetRow'
 import { generateId } from '../utils/id'
-import { createCategory, archiveCategory } from '../services/category/categoryService'
+import {
+  createCategory,
+  archiveCategory,
+  renameCategory,
+  restoreCategory,
+} from '../services/category/categoryService'
 import ConfirmDialog from '../components/common/ConfirmDialog'
 import Toast from '../components/common/Toast'
 import { useToast } from '../hooks/useToast'
@@ -22,10 +27,13 @@ export default function BudgetPage() {
   const [monthlyBudget, setMonthlyBudget] = useState<MonthlyBudget | null>(null)
   const [categoryBudgets, setCategoryBudgets] = useState<CategoryBudget[]>([])
   const [categories, setCategories] = useState<Category[]>([])
+  const [archivedCategories, setArchivedCategories] = useState<Category[]>([])
   const [records, setRecords] = useState<RecordItem[]>([])
   const [saving, setSaving] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState('')
   const [archiveTarget, setArchiveTarget] = useState<Category | null>(null)
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null)
+  const [editingCategoryName, setEditingCategoryName] = useState('')
   const { toast, showToast } = useToast()
 
   const loadData = useCallback(async () => {
@@ -40,6 +48,7 @@ export default function BudgetPage() {
       setMonthlyBudget(mb ?? null)
       setCategoryBudgets(cbs)
       setCategories(cats.filter((c) => c.budgetable && !c.archived).sort((a, b) => a.order - b.order))
+      setArchivedCategories(cats.filter((c) => c.budgetable && c.archived).sort((a, b) => a.order - b.order))
       setRecords(recs)
     } finally {
       setLoading(false)
@@ -57,48 +66,57 @@ export default function BudgetPage() {
   const handleTotalBudgetChange = async (value: number) => {
     const nextValue = Math.max(0, value || 0)
     setSaving(true)
-    const now = new Date().toISOString()
-    if (monthlyBudget) {
-      await db.monthlyBudgets.update(monthlyBudget.id, {
-        totalBudget: nextValue,
-        updatedAt: now,
-      })
-      setMonthlyBudget({ ...monthlyBudget, totalBudget: nextValue, updatedAt: now })
-    } else {
-      const newBudget: MonthlyBudget = {
-        id: generateId(),
-        month: currentMonth,
-        totalBudget: nextValue,
-        createdAt: now,
-        updatedAt: now,
+    try {
+      const now = new Date().toISOString()
+      if (monthlyBudget) {
+        await db.monthlyBudgets.update(monthlyBudget.id, {
+          totalBudget: nextValue,
+          updatedAt: now,
+        })
+        setMonthlyBudget({ ...monthlyBudget, totalBudget: nextValue, updatedAt: now })
+      } else {
+        const newBudget: MonthlyBudget = {
+          id: generateId(),
+          month: currentMonth,
+          totalBudget: nextValue,
+          createdAt: now,
+          updatedAt: now,
+        }
+        await db.monthlyBudgets.add(newBudget)
+        setMonthlyBudget(newBudget)
       }
-      await db.monthlyBudgets.add(newBudget)
-      setMonthlyBudget(newBudget)
+    } catch {
+      showToast('error', '预算保存失败，请重试')
+    } finally {
+      setSaving(false)
     }
-    setSaving(false)
   }
 
   const handleCategoryBudgetChange = async (categoryId: string, amount: number) => {
     const nextAmount = Math.max(0, amount || 0)
-    const now = new Date().toISOString()
-    const existing = categoryBudgets.find((cb) => cb.categoryId === categoryId)
+    try {
+      const now = new Date().toISOString()
+      const existing = categoryBudgets.find((cb) => cb.categoryId === categoryId)
 
-    if (existing) {
-      await db.categoryBudgets.update(existing.id, { amount: nextAmount, updatedAt: now })
-      setCategoryBudgets((prev) =>
-        prev.map((cb) => (cb.id === existing.id ? { ...cb, amount: nextAmount, updatedAt: now } : cb))
-      )
-    } else {
-      const newCB: CategoryBudget = {
-        id: generateId(),
-        categoryId,
-        month: currentMonth,
-        amount: nextAmount,
-        createdAt: now,
-        updatedAt: now,
+      if (existing) {
+        await db.categoryBudgets.update(existing.id, { amount: nextAmount, updatedAt: now })
+        setCategoryBudgets((prev) =>
+          prev.map((cb) => (cb.id === existing.id ? { ...cb, amount: nextAmount, updatedAt: now } : cb))
+        )
+      } else {
+        const newCB: CategoryBudget = {
+          id: generateId(),
+          categoryId,
+          month: currentMonth,
+          amount: nextAmount,
+          createdAt: now,
+          updatedAt: now,
+        }
+        await db.categoryBudgets.add(newCB)
+        setCategoryBudgets((prev) => [...prev, newCB])
       }
-      await db.categoryBudgets.add(newCB)
-      setCategoryBudgets((prev) => [...prev, newCB])
+    } catch {
+      showToast('error', '分类预算保存失败，请重试')
     }
   }
 
@@ -118,10 +136,48 @@ export default function BudgetPage() {
     try {
       await archiveCategory(archiveTarget.id)
       setCategories((prev) => prev.filter((cat) => cat.id !== archiveTarget.id))
+      setArchivedCategories((prev) =>
+        [...prev, { ...archiveTarget, archived: true }].sort((a, b) => a.order - b.order)
+      )
       setArchiveTarget(null)
       showToast('success', '分类已归档')
     } catch (err) {
       showToast('error', err instanceof Error ? err.message : '归档失败')
+    }
+  }
+
+  const startRenameCategory = (category: Category) => {
+    setEditingCategory(category)
+    setEditingCategoryName(category.name)
+  }
+
+  const handleRenameCategory = async () => {
+    if (!editingCategory) return
+    try {
+      await renameCategory(editingCategory.id, editingCategoryName)
+      setCategories((prev) =>
+        prev.map((cat) =>
+          cat.id === editingCategory.id ? { ...cat, name: editingCategoryName.trim() } : cat
+        )
+      )
+      setEditingCategory(null)
+      setEditingCategoryName('')
+      showToast('success', '分类已更新')
+    } catch (err) {
+      showToast('error', err instanceof Error ? err.message : '更新分类失败')
+    }
+  }
+
+  const handleRestoreCategory = async (category: Category) => {
+    try {
+      await restoreCategory(category.id)
+      setArchivedCategories((prev) => prev.filter((cat) => cat.id !== category.id))
+      setCategories((prev) =>
+        [...prev, { ...category, archived: false }].sort((a, b) => a.order - b.order)
+      )
+      showToast('success', '分类已恢复')
+    } catch (err) {
+      showToast('error', err instanceof Error ? err.message : '恢复分类失败')
     }
   }
 
@@ -217,6 +273,7 @@ export default function BudgetPage() {
               usageRate={status?.usageRate ?? 0}
               status={status?.status ?? 'normal'}
               onBudgetChange={(value) => handleCategoryBudgetChange(cat.id, value)}
+              onRename={() => startRenameCategory(cat)}
               onArchive={() => setArchiveTarget(cat)}
             />
           )
@@ -241,6 +298,29 @@ export default function BudgetPage() {
         </div>
       </div>
 
+      {archivedCategories.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-sm font-medium text-gray-500 px-1">已归档分类</h2>
+          <div className="bg-white rounded-xl divide-y divide-gray-50">
+            {archivedCategories.map((cat) => (
+              <div key={cat.id} className="flex items-center justify-between px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">{cat.icon || '📦'}</span>
+                  <span className="text-sm font-medium text-gray-500">{cat.name}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleRestoreCategory(cat)}
+                  className="text-xs text-indigo-500 hover:text-indigo-600"
+                >
+                  恢复
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Saving indicator */}
       {saving && (
         <div className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-4 py-2 rounded-full">
@@ -256,6 +336,38 @@ export default function BudgetPage() {
         onConfirm={handleArchiveCategory}
         onCancel={() => setArchiveTarget(null)}
       />
+      {editingCategory && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="bg-white rounded-2xl w-full max-w-sm p-6 space-y-4 shadow-xl">
+            <h3 className="text-lg font-semibold text-gray-800">编辑分类</h3>
+            <input
+              value={editingCategoryName}
+              onChange={(e) => setEditingCategoryName(e.target.value)}
+              autoFocus
+              className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-indigo-400"
+            />
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingCategory(null)
+                  setEditingCategoryName('')
+                }}
+                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm font-medium"
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                onClick={handleRenameCategory}
+                className="flex-1 py-2.5 rounded-xl bg-indigo-500 text-white text-sm font-medium hover:bg-indigo-600"
+              >
+                保存
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <Toast toast={toast} />
     </div>
   )
