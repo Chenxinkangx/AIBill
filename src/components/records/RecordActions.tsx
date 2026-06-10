@@ -17,16 +17,40 @@ export default function RecordActions({ record, categories, onUpdated, onDeleted
   const [form, setForm] = useState({
     title: record.title,
     amount: record.amount,
+    type: record.type,
     categoryId: record.categoryId,
+    date: record.date,
     note: record.note ?? '',
   })
+  const [error, setError] = useState('')
 
   const handleSave = async () => {
-    if (!form.title || !form.amount || form.amount <= 0) return
+    if (!form.title.trim()) {
+      setError('请填写账单内容')
+      return
+    }
+    if (!form.amount || form.amount <= 0) {
+      setError('请输入有效金额')
+      return
+    }
+    if (!form.date) {
+      setError('请选择日期')
+      return
+    }
+    const categoryId = form.type === 'income' ? 'income' : form.categoryId
+    if (form.type === 'expense' && (!categoryId || categoryId === 'income')) {
+      setError('请选择支出分类')
+      return
+    }
     setSaving(true)
-    await updateRecord(record.id, form)
+    await updateRecord(record.id, {
+      ...form,
+      title: form.title.trim(),
+      categoryId,
+    })
     setSaving(false)
     setEditing(false)
+    setError('')
     onUpdated()
   }
 
@@ -54,18 +78,45 @@ export default function RecordActions({ record, categories, onUpdated, onDeleted
             className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-indigo-400 [appearance:textfield]"
           />
           <select
+            value={form.type}
+            onChange={(e) => {
+              const type = e.target.value as RecordItem['type']
+              const nextCategory =
+                type === 'income'
+                  ? 'income'
+                  : categories.find((c) => c.budgetable && c.id !== 'income')?.id ?? ''
+              setForm({ ...form, type, categoryId: nextCategory })
+            }}
+            className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-indigo-400 bg-white"
+          >
+            <option value="expense">支出</option>
+            <option value="income">收入</option>
+          </select>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <select
             value={form.categoryId}
             onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
             className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-indigo-400 bg-white"
           >
             {categories
-              .filter((c) => c.budgetable || c.id === record.categoryId || c.id === 'income')
+              .filter((c) =>
+                form.type === 'income'
+                  ? c.id === 'income'
+                  : (c.budgetable && !c.archived) || c.id === record.categoryId
+              )
               .map((cat) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.name}
                 </option>
               ))}
           </select>
+          <input
+            type="date"
+            value={form.date}
+            onChange={(e) => setForm({ ...form, date: e.target.value })}
+            className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-indigo-400"
+          />
         </div>
         <input
           value={form.note}
@@ -73,6 +124,7 @@ export default function RecordActions({ record, categories, onUpdated, onDeleted
           placeholder="备注"
           className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-indigo-400"
         />
+        {error && <p className="text-xs text-red-500">{error}</p>}
         <div className="flex gap-2">
           <button
             onClick={() => setEditing(false)}

@@ -39,7 +39,7 @@ export async function parseNaturalLanguageRecord(
   })
 
   if (!response.success || !response.data) {
-    return { items: [], error: response.error ?? 'AI 解析失败' }
+    return { items: [], error: response.error ?? '暂时无法识别，请尝试简化描述或使用手动记账' }
   }
 
   // Try to extract JSON from response
@@ -54,7 +54,7 @@ export async function parseNaturalLanguageRecord(
   } catch {
     return {
       items: [],
-      error: 'AI 返回格式错误，请重试或使用手动记账',
+      error: 'AI 解析失败，请重试或使用手动记账',
     }
   }
 

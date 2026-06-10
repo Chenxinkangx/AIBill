@@ -14,7 +14,8 @@ export default function TotalBudgetInput({ totalBudget, onChange }: Props) {
         <input
           type="number"
           value={totalBudget || ''}
-          onChange={(e) => onChange(Number(e.target.value))}
+          min="0"
+          onChange={(e) => onChange(Math.max(0, Number(e.target.value) || 0))}
           placeholder="输入月度总预算"
           className="flex-1 text-2xl font-bold text-gray-800 outline-none bg-transparent placeholder:text-gray-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />

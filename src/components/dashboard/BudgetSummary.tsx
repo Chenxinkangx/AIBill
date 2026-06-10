@@ -8,6 +8,7 @@ interface Props {
   todaySuggested: number | null
   monthlySurplus?: number
   isCurrentMonth: boolean
+  totalIncome?: number
 }
 
 export default function BudgetSummary({
@@ -18,6 +19,7 @@ export default function BudgetSummary({
   todaySuggested,
   monthlySurplus,
   isCurrentMonth,
+  totalIncome = 0,
 }: Props) {
   const usageRate = totalBudget > 0 ? totalExpense / totalBudget : 0
 
@@ -84,6 +86,13 @@ export default function BudgetSummary({
           已使用 {formatPercent(usageRate)}
         </p>
       </div>
+
+      {totalIncome > 0 && (
+        <div className="flex items-center justify-between text-xs text-gray-400 border-t border-gray-50 pt-3">
+          <span>本月收入</span>
+          <span className="font-medium text-green-600">{formatMoney(totalIncome)}</span>
+        </div>
+      )}
     </div>
   )
 }

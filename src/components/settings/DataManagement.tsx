@@ -4,24 +4,25 @@ import { importBackupFromFile } from '../../services/backup/import'
 import { db } from '../../db/index'
 import { initializeIfNeeded } from '../../db/seed'
 import ConfirmDialog from '../common/ConfirmDialog'
+import { useSettingsStore } from '../../stores/settingsStore'
+import Toast from '../common/Toast'
+import { useToast } from '../../hooks/useToast'
 
 export default function DataManagement() {
+  const loadSettings = useSettingsStore((s) => s.loadSettings)
   const [importing, setImporting] = useState(false)
   const [clearing, setClearing] = useState(false)
-  const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const [confirmingImport, setConfirmingImport] = useState(false)
+  const [pendingImportFile, setPendingImportFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const showStatus = (type: 'success' | 'error', message: string) => {
-    setStatus({ type, message })
-    setTimeout(() => setStatus(null), 3000)
-  }
+  const { toast, showToast } = useToast()
 
   const handleExport = async () => {
     try {
       await downloadBackup()
-      showStatus('success', '已导出')
+      showToast('success', '已导出')
     } catch {
-      showStatus('error', '导出失败')
+      showToast('error', '导出失败')
     }
   }
 
@@ -29,20 +30,34 @@ export default function DataManagement() {
     const file = e.target.files?.[0]
     if (!file) return
 
-    setImporting(true)
-    const result = await importBackupFromFile(file)
-    setImporting(false)
+    setPendingImportFile(file)
+    setConfirmingImport(true)
+  }
 
-    if (result.success) {
-      showStatus('success', result.message)
-    } else {
-      showStatus('error', result.message)
-    }
-
-    // Reset file input
+  const resetImportInput = () => {
+    setPendingImportFile(null)
+    setConfirmingImport(false)
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
+  }
+
+  const handleConfirmImport = async () => {
+    if (importing) return
+    if (!pendingImportFile) return
+
+    setImporting(true)
+    const result = await importBackupFromFile(pendingImportFile)
+    setImporting(false)
+    resetImportInput()
+
+    if (result.success) {
+      await loadSettings()
+      showToast('success', result.message)
+    } else {
+      showToast('error', result.message)
+    }
+
   }
 
   const handleClear = async () => {
@@ -57,10 +72,11 @@ export default function DataManagement() {
       ])
       // Re-initialize with default categories
       await initializeIfNeeded()
+      await loadSettings()
       setClearing(false)
-      showStatus('success', '数据已清空')
+      showToast('success', '数据已清空')
     } catch {
-      showStatus('error', '清空失败')
+      showToast('error', '清空失败')
     }
   }
 
@@ -99,20 +115,18 @@ export default function DataManagement() {
         <span>🗑️</span>
       </button>
 
-      {/* Status toast */}
-      {status && (
-        <div
-          className={`fixed bottom-20 left-1/2 -translate-x-1/2 text-sm px-6 py-2.5 rounded-full shadow-lg ${
-            status.type === 'success'
-              ? 'bg-green-600 text-white'
-              : 'bg-red-500 text-white'
-          }`}
-        >
-          {status.message}
-        </div>
-      )}
+      <Toast toast={toast} />
 
       {/* Clear confirm dialog */}
+      <ConfirmDialog
+        open={confirmingImport}
+        title="导入 JSON 恢复"
+        message="导入会覆盖当前本地数据，建议先导出备份。确定继续吗？"
+        confirmLabel={importing ? '导入中...' : '继续导入'}
+        onConfirm={handleConfirmImport}
+        onCancel={resetImportInput}
+      />
+
       <ConfirmDialog
         open={clearing}
         title="清空所有数据"

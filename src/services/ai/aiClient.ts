@@ -38,15 +38,20 @@ export async function callLlmApi(
     })
 
     if (!response.ok) {
-      const err = await response.text()
-      return { success: false, data: null, error: `API 请求失败 (${response.status}): ${err}` }
+      return {
+        success: false,
+        data: null,
+        error:
+          response.status === 401 || response.status === 403
+            ? 'API Key 无效，请检查设置'
+            : 'AI 服务暂时不可用，请稍后重试',
+      }
     }
 
     const json = await response.json()
     const text = json.choices?.[0]?.message?.content ?? ''
     return { success: true, data: text, error: null }
-  } catch (err) {
-    const message = err instanceof Error ? err.message : '网络请求失败'
-    return { success: false, data: null, error: message }
+  } catch {
+    return { success: false, data: null, error: '网络异常，请重试' }
   }
 }

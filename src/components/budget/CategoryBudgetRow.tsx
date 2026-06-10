@@ -9,6 +9,7 @@ interface Props {
   usageRate: number
   status: 'normal' | 'warning' | 'overspent'
   onBudgetChange: (value: number) => void
+  onArchive?: () => void
 }
 
 export default function CategoryBudgetRow({
@@ -19,6 +20,7 @@ export default function CategoryBudgetRow({
   usageRate,
   status,
   onBudgetChange,
+  onArchive,
 }: Props) {
   return (
     <div className="bg-white rounded-xl p-4 space-y-1">
@@ -28,9 +30,20 @@ export default function CategoryBudgetRow({
           <span className="text-lg">{icon || '📦'}</span>
           <span className="font-medium text-gray-800">{name}</span>
         </div>
-        <span className="text-xs text-gray-400">
-          {formatMoney(spent)} / {formatMoney(budget || 0)}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-400">
+            {formatMoney(spent)} / {formatMoney(budget || 0)}
+          </span>
+          {onArchive && (
+            <button
+              type="button"
+              onClick={onArchive}
+              className="text-xs text-gray-300 hover:text-red-500"
+            >
+              归档
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Budget Input */}
@@ -39,7 +52,8 @@ export default function CategoryBudgetRow({
         <input
           type="number"
           value={budget || ''}
-          onChange={(e) => onBudgetChange(Number(e.target.value))}
+          min="0"
+          onChange={(e) => onBudgetChange(Math.max(0, Number(e.target.value) || 0))}
           placeholder="0"
           className="flex-1 text-sm font-medium text-gray-700 outline-none bg-gray-50 rounded-lg px-3 py-1.5 placeholder:text-gray-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />

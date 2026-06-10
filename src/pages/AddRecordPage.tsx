@@ -1,21 +1,29 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { db } from '../db/index'
 import { useRecordStore } from '../stores/recordStore'
-import { createRecord } from '../services/record/recordService'
+import { useAppStore } from '../stores/appStore'
+import { createRecord, createRecordsFromParsed } from '../services/record/recordService'
 import { parseNaturalLanguageRecord } from '../services/ai/parseRecord'
 import { getToday } from '../utils/date'
-import type { Category, ParsedRecordItem } from '../types'
+import type { Category, MonthlyBudget, ParsedRecordItem } from '../types'
 import ManualForm from '../components/record/ManualForm'
 import AiInputBox from '../components/record/AiInputBox'
 import AiParseResultList from '../components/record/AiParseResultList'
 import type { ManualRecordFormValues } from '../services/record/validation'
+import EmptyState from '../components/common/EmptyState'
+import Toast from '../components/common/Toast'
+import { useToast } from '../hooks/useToast'
 
 export default function AddRecordPage() {
+  const navigate = useNavigate()
+  const currentMonth = useAppStore((s) => s.currentMonth)
   const [categories, setCategories] = useState<Category[]>([])
+  const [monthlyBudget, setMonthlyBudget] = useState<MonthlyBudget | null>(null)
+  const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [successMsg, setSuccessMsg] = useState('')
   const loadRecords = useRecordStore((s) => s.loadRecordsByMonth)
+  const { toast, showToast } = useToast()
 
   // AI mode state
   const [aiInput, setAiInput] = useState('')
@@ -27,11 +35,19 @@ export default function AddRecordPage() {
   const [mode, setMode] = useState<'ai' | 'manual'>('ai')
 
   useEffect(() => {
-    db.categories
-      .filter((c) => (c.budgetable || c.id === 'income') && !c.archived)
-      .toArray()
-      .then(setCategories)
-  }, [])
+    setLoading(true)
+    Promise.all([
+      db.categories
+        .filter((c) => (c.budgetable || c.id === 'income') && !c.archived)
+        .toArray(),
+      db.monthlyBudgets.get({ month: currentMonth }),
+    ])
+      .then(([cats, budget]) => {
+        setCategories(cats)
+        setMonthlyBudget(budget ?? null)
+      })
+      .finally(() => setLoading(false))
+  }, [currentMonth])
 
   const handleParse = async () => {
     if (!aiInput.trim()) return
@@ -66,34 +82,16 @@ export default function AddRecordPage() {
     if (parsedItems.length === 0) return
 
     setSaving(true)
-    setSuccess(false)
 
     try {
-      const now = new Date().toISOString()
-      const records = parsedItems.map((item) => ({
-        id: crypto.randomUUID(),
-        title: item.title,
-        amount: item.amount,
-        categoryId: item.categoryId ?? 'cat-other',
-        type: item.type,
-        date: item.date,
-        source: 'ai' as const,
-        createdAt: now,
-        updatedAt: now,
-      }))
-
-      await db.records.bulkAdd(records)
-
-      setSuccessMsg(`已保存 ${records.length} 条账单`)
-      setSuccess(true)
+      const records = await createRecordsFromParsed(parsedItems)
+      showToast('success', `已保存 ${records.length} 条账单`)
       setParsedItems([])
       setAiInput('')
 
-      // Refresh store
-      const month = getToday().slice(0, 7)
-      loadRecords(month)
-
-      setTimeout(() => setSuccess(false), 3000)
+      loadRecords(currentMonth)
+    } catch {
+      showToast('error', '保存失败，请重试')
     } finally {
       setSaving(false)
     }
@@ -102,28 +100,50 @@ export default function AddRecordPage() {
   const handleManualSave = useCallback(
     async (data: ManualRecordFormValues) => {
       setSaving(true)
-      setSuccess(false)
       try {
         await createRecord({
           title: data.title,
           amount: data.amount,
-          categoryId: data.categoryId,
+          categoryId: data.type === 'income' ? 'income' : data.categoryId,
           type: data.type,
           date: data.date,
           note: data.note || undefined,
           source: 'manual',
         })
-        setSuccessMsg('已保存')
-        setSuccess(true)
-        setTimeout(() => setSuccess(false), 2000)
+        showToast('success', '已保存')
         const month = data.date.slice(0, 7)
         loadRecords(month)
+      } catch {
+        showToast('error', '保存失败，请重试')
       } finally {
         setSaving(false)
       }
     },
-    [loadRecords]
+    [loadRecords, showToast]
   )
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <p className="text-gray-400">加载中...</p>
+      </div>
+    )
+  }
+
+  if (!monthlyBudget) {
+    return (
+      <div className="space-y-4">
+        <h1 className="text-xl font-bold text-gray-800">记账</h1>
+        <EmptyState
+          icon={'\u{1F4B0}'}
+          title="请先设置本月预算"
+          description="预算设置完成后再记账，才能看到准确的剩余金额"
+          actionLabel="去设置预算"
+          onAction={() => navigate('/budget')}
+        />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4">
@@ -170,7 +190,7 @@ export default function AddRecordPage() {
               {aiError}
               {aiError.includes('API Key') && (
                 <button
-                  onClick={() => window.location.href = '/settings'}
+                  onClick={() => navigate('/settings')}
                   className="ml-2 underline"
                 >
                   去设置
@@ -198,12 +218,7 @@ export default function AddRecordPage() {
         </div>
       )}
 
-      {/* Success Toast */}
-      {success && (
-        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-green-600 text-white text-sm px-6 py-2.5 rounded-full shadow-lg z-50">
-          {successMsg}
-        </div>
-      )}
+      <Toast toast={toast} />
     </div>
   )
 }

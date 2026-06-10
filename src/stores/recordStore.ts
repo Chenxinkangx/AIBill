@@ -1,7 +1,12 @@
 import { create } from 'zustand'
 import type { RecordItem, ParsedRecordItem } from '../types'
 import { db } from '../db/index'
-import { generateId } from '../utils/id'
+import {
+  createRecord,
+  createRecordsFromParsed,
+  deleteRecord,
+  updateRecord,
+} from '../services/record/recordService'
 
 interface RecordState {
   records: RecordItem[]
@@ -36,65 +41,41 @@ export const useRecordStore = create<RecordState>((set) => ({
   },
 
   addRecord: async (item) => {
-    const now = new Date().toISOString()
-    const record: RecordItem = {
-      ...item,
-      id: generateId(),
-      createdAt: now,
-      updatedAt: now,
-    }
-    await db.records.add(record)
+    const record = await createRecord(item)
     set((state) => ({ records: [record, ...state.records] }))
   },
 
   addRecordsFromParsed: async (items: ParsedRecordItem[], month: string): Promise<number> => {
-    const now = new Date().toISOString()
-    const [year] = month.split('-')
-
-    const records: RecordItem[] = items.map((item) => {
-      // Ensure date is in the correct format
-      const date = item.date || now.slice(0, 10)
-      return {
-        id: generateId(),
-        title: item.title,
-        amount: item.amount,
-        categoryId: item.categoryId ?? 'cat-other',
-        type: item.type,
-        date,
-        source: 'ai' as const,
-        createdAt: now,
-        updatedAt: now,
-      }
-    })
-
-    await db.records.bulkAdd(records)
-    // Reload to keep state in sync
+    await createRecordsFromParsed(items)
+    const [year, monthNum] = month.split('-')
+    const startDate = `${year}-${monthNum}-01`
+    const lastDay = new Date(Number(year), Number(monthNum), 0).getDate()
+    const endDate = `${year}-${monthNum}-${String(lastDay).padStart(2, '0')}`
     const currentRecords = await db.records
       .where('date')
-      .between(
-        `${year}-01-01`,
-        `${year}-12-31`,
-        true,
-        true
-      )
+      .between(startDate, endDate, true, true)
       .reverse()
       .toArray()
     set({ records: currentRecords })
-    return records.length
+    return items.length
   },
 
   updateRecord: async (id: string, partial: Partial<RecordItem>) => {
+    await updateRecord(id, partial)
     const now = new Date().toISOString()
-    await db.records.update(id, { ...partial, updatedAt: now })
+    const nextPartial =
+      partial.type === 'income'
+        ? { ...partial, categoryId: 'income' }
+        : partial
     set((state) => ({
       records: state.records.map((r) =>
-        r.id === id ? { ...r, ...partial, updatedAt: now } : r
+        r.id === id ? { ...r, ...nextPartial, updatedAt: now } : r
       ),
     }))
   },
 
   deleteRecord: async (id: string) => {
-    await db.records.delete(id)
+    await deleteRecord(id)
     set((state) => ({
       records: state.records.filter((r) => r.id !== id),
     }))

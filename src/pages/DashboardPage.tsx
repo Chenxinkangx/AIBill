@@ -2,10 +2,13 @@ import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { db } from '../db/index'
 import { useAppStore } from '../stores/appStore'
+import { useSettingsStore } from '../stores/settingsStore'
 import { getBudgetSummary } from '../services/budget/calculator'
 import { getRecordsByMonth } from '../services/record/recordService'
 import { getToday, isCurrentMonth } from '../utils/date'
 import type { Category, MonthlyBudget, CategoryBudget, RecordItem } from '../types'
+import { generateId } from '../utils/id'
+import { sumMoney } from '../utils/money'
 import MonthPicker from '../components/common/MonthPicker'
 import BudgetSummary from '../components/dashboard/BudgetSummary'
 import BudgetAllocationHint from '../components/dashboard/BudgetAllocationHint'
@@ -14,6 +17,7 @@ import EmptyState from '../components/common/EmptyState'
 
 export default function DashboardPage() {
   const currentMonth = useAppStore((s) => s.currentMonth)
+  const settings = useSettingsStore((s) => s.settings)
   const navigate = useNavigate()
 
   const [loading, setLoading] = useState(true)
@@ -50,10 +54,26 @@ export default function DashboardPage() {
 
   const today = getToday()
   const _isCurrentMonth = isCurrentMonth(currentMonth)
+  const defaultMonthBudget = settings?.defaultMonthBudget
 
   const budgetData = monthlyBudget
     ? getBudgetSummary(monthlyBudget, categoryBudgets, records, categories, currentMonth, today)
     : null
+  const totalIncome = sumMoney(records.filter((record) => record.type === 'income').map((record) => record.amount))
+
+  const createDefaultBudget = async () => {
+    if (!defaultMonthBudget || defaultMonthBudget <= 0) return
+    const now = new Date().toISOString()
+    const newBudget: MonthlyBudget = {
+      id: generateId(),
+      month: currentMonth,
+      totalBudget: defaultMonthBudget,
+      createdAt: now,
+      updatedAt: now,
+    }
+    await db.monthlyBudgets.add(newBudget)
+    setMonthlyBudget(newBudget)
+  }
 
   if (loading) {
     return (
@@ -74,7 +94,7 @@ export default function DashboardPage() {
       <MonthPicker />
 
       {/* No budget set */}
-      {!monthlyBudget && (
+      {!monthlyBudget && _isCurrentMonth && (
         <EmptyState
           icon={'\u{1F4B0}'}
           title="先设置本月预算"
@@ -82,6 +102,30 @@ export default function DashboardPage() {
           actionLabel="去设置预算"
           onAction={() => navigate('/budget')}
         />
+      )}
+
+      {!monthlyBudget && !_isCurrentMonth && (
+        <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
+          <span className="text-5xl">{'\u{1F4B0}'}</span>
+          <h3 className="text-lg font-medium text-gray-700">该月份还未设置预算</h3>
+          <p className="text-sm text-gray-400">可以手动设置历史月份预算</p>
+          <div className="flex flex-col gap-2 w-full max-w-xs pt-2">
+            <button
+              onClick={() => navigate('/budget')}
+              className="px-6 py-2.5 bg-indigo-500 text-white rounded-xl text-sm font-medium hover:bg-indigo-600 transition-colors"
+            >
+              手动设置预算
+            </button>
+            {defaultMonthBudget && defaultMonthBudget > 0 && (
+              <button
+                onClick={createDefaultBudget}
+                className="px-6 py-2.5 bg-white text-indigo-600 border border-indigo-100 rounded-xl text-sm font-medium hover:bg-indigo-50 transition-colors"
+              >
+                使用默认预算创建
+              </button>
+            )}
+          </div>
+        </div>
       )}
 
       {/* Has budget */}
@@ -95,6 +139,7 @@ export default function DashboardPage() {
             todaySuggested={budgetData.summary!.todaySuggested}
             monthlySurplus={budgetData.summary!.monthlySurplus}
             isCurrentMonth={_isCurrentMonth}
+            totalIncome={totalIncome}
           />
 
           {/* Allocation hint */}

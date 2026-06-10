@@ -19,6 +19,9 @@ export default function AiParseResultList({
 }: Props) {
   if (items.length === 0) return null
 
+  const getOptionsForType = (type: ParsedRecordItem['type']) =>
+    categories.filter((c) => (type === 'income' ? c.id === 'income' : c.budgetable))
+
   return (
     <div className="bg-white rounded-xl overflow-hidden">
       <div className="px-4 py-2.5 border-b border-gray-50">
@@ -59,7 +62,29 @@ export default function AiParseResultList({
               />
               <span className="text-gray-300">|</span>
               <select
-                value={item.categoryId ?? ''}
+                value={item.type}
+                onChange={(e) => {
+                  const type = e.target.value as ParsedRecordItem['type']
+                  const nextCategory =
+                    type === 'income'
+                      ? categories.find((c) => c.id === 'income')
+                      : categories.find((c) => c.budgetable && c.id !== 'income')
+                  onUpdate(index, 'type', type)
+                  onUpdate(index, 'categoryId', nextCategory?.id ?? '')
+                  onUpdate(index, 'categoryName', nextCategory?.name ?? '')
+                }}
+                className="text-sm text-gray-600 outline-none bg-transparent"
+              >
+                <option value="expense">支出</option>
+                <option value="income">收入</option>
+              </select>
+              <span className="text-gray-300">|</span>
+              <select
+                value={
+                  getOptionsForType(item.type).some((c) => c.id === item.categoryId)
+                    ? item.categoryId
+                    : ''
+                }
                 onChange={(e) => {
                   const cat = categories.find((c) => c.id === e.target.value)
                   onUpdate(index, 'categoryId', e.target.value)
@@ -67,13 +92,11 @@ export default function AiParseResultList({
                 }}
                 className="text-sm text-gray-600 outline-none bg-transparent"
               >
-                {categories
-                  .filter((c) => c.budgetable || c.id === 'income')
-                  .map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </option>
-                  ))}
+                {getOptionsForType(item.type).map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
               </select>
               <span className="text-gray-300">|</span>
               <input

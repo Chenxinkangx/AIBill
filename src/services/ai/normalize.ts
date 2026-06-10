@@ -1,5 +1,6 @@
 import type { ParsedRecordItem, Category } from '../../types'
 import { getToday } from '../../utils/date'
+import { isValidDateString } from '../../utils/validation'
 
 /**
  * 校验并规范化 AI 返回的解析结果
@@ -47,7 +48,7 @@ export function normalizeParsedItems(
 
       // Validate date
       let date = String(item.date ?? '').trim()
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      if (!isValidDateString(date)) {
         date = today
       }
 
