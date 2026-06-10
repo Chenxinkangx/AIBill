@@ -43,21 +43,31 @@ export default function RecordActions({ record, categories, onUpdated, onDeleted
       return
     }
     setSaving(true)
-    await updateRecord(record.id, {
-      ...form,
-      title: form.title.trim(),
-      categoryId,
-    })
-    setSaving(false)
-    setEditing(false)
     setError('')
-    onUpdated()
+    try {
+      await updateRecord(record.id, {
+        ...form,
+        title: form.title.trim(),
+        categoryId,
+      })
+      setEditing(false)
+      onUpdated()
+    } catch {
+      setError('保存失败，请重试')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleDelete = async () => {
-    await deleteRecord(record.id)
-    setDeleting(false)
-    onDeleted()
+    try {
+      await deleteRecord(record.id)
+      setDeleting(false)
+      onDeleted()
+    } catch {
+      setDeleting(false)
+      setError('删除失败，请重试')
+    }
   }
 
   if (editing) {

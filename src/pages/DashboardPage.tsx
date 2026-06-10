@@ -64,6 +64,12 @@ export default function DashboardPage() {
   const createDefaultBudget = async () => {
     if (!defaultMonthBudget || defaultMonthBudget <= 0) return
     const now = new Date().toISOString()
+    const [year, month] = currentMonth.split('-').map(Number)
+    const previousDate = new Date(year, month - 2, 1)
+    const previousMonth = `${previousDate.getFullYear()}-${String(previousDate.getMonth() + 1).padStart(2, '0')}`
+    const previousCategoryBudgets = await db.categoryBudgets
+      .where({ month: previousMonth })
+      .toArray()
     const newBudget: MonthlyBudget = {
       id: generateId(),
       month: currentMonth,
@@ -71,8 +77,23 @@ export default function DashboardPage() {
       createdAt: now,
       updatedAt: now,
     }
-    await db.monthlyBudgets.add(newBudget)
+    const newCategoryBudgets: CategoryBudget[] = previousCategoryBudgets.map((budget) => ({
+      id: generateId(),
+      month: currentMonth,
+      categoryId: budget.categoryId,
+      amount: budget.amount,
+      createdAt: now,
+      updatedAt: now,
+    }))
+
+    await db.transaction('rw', db.monthlyBudgets, db.categoryBudgets, async () => {
+      await db.monthlyBudgets.add(newBudget)
+      if (newCategoryBudgets.length > 0) {
+        await db.categoryBudgets.bulkAdd(newCategoryBudgets)
+      }
+    })
     setMonthlyBudget(newBudget)
+    setCategoryBudgets(newCategoryBudgets)
   }
 
   if (loading) {

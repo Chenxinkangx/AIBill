@@ -1,5 +1,5 @@
 import { db } from '../../db/index'
-import type { ExportData } from '../../types'
+import type { Category, ExportData } from '../../types'
 import { isValidDateString, isValidMonthString } from '../../utils/validation'
 
 export interface ImportResult {
@@ -8,21 +8,31 @@ export interface ImportResult {
   recordCount?: number
 }
 
-/**
- * 解析并校验 JSON 文件内容
- */
-function parseJsonFile(content: string): ExportData | null {
+interface ParseResult {
+  data: ExportData | null
+  error: string | null
+}
+
+function normalizeImportedCategories(categories: Category[]): Category[] {
+  return categories.map((category) =>
+    category.id === 'income'
+      ? { ...category, name: category.name || '收入', budgetable: false, system: true }
+      : category
+  )
+}
+
+function parseJsonFile(content: string): ParseResult {
   try {
     const parsed = JSON.parse(content)
 
     if (parsed.app !== 'AIBill') {
-      return null
+      return { data: null, error: '不是 AIBill 备份文件' }
     }
     if (typeof parsed.version !== 'string') {
-      return null
+      return { data: null, error: '备份版本信息缺失' }
     }
     if (!parsed.data || typeof parsed.data !== 'object') {
-      return null
+      return { data: null, error: '备份数据格式错误' }
     }
     if (
       !Array.isArray(parsed.data.categories) ||
@@ -32,13 +42,22 @@ function parseJsonFile(content: string): ExportData | null {
       !parsed.data.settings ||
       typeof parsed.data.settings !== 'object'
     ) {
-      return null
+      return { data: null, error: '备份数据字段缺失' }
     }
 
-    const data = parsed as ExportData
-    return validateExportData(data) ? null : data
+    const data = {
+      ...parsed,
+      data: {
+        ...parsed.data,
+        categories: normalizeImportedCategories(parsed.data.categories),
+      },
+    } as ExportData
+    const validationError = validateExportData(data)
+    return validationError
+      ? { data: null, error: validationError }
+      : { data, error: null }
   } catch {
-    return null
+    return { data: null, error: 'JSON 文件无法解析' }
   }
 }
 
@@ -64,7 +83,7 @@ export function validateExportData(data: ExportData): string | null {
   }
 
   const income = categories.find((category) => category.id === 'income')
-  if (!income || income.budgetable || !income.system) {
+  if (!income || income.budgetable || income.system !== true) {
     return '缺少系统收入分类'
   }
 
@@ -139,11 +158,11 @@ export function validateExportData(data: ExportData): string | null {
  * 流程：校验 → 确认 → 清空 → 写入
  */
 export async function importBackup(content: string): Promise<ImportResult> {
-  const data = parseJsonFile(content)
+  const { data, error } = parseJsonFile(content)
   if (!data) {
     return {
       success: false,
-      message: '文件格式错误，数据未变更',
+      message: `${error ?? '文件格式错误'}，数据未变更`,
     }
   }
 
