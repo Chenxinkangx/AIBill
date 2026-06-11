@@ -25,7 +25,7 @@ export async function initializeIfNeeded(): Promise<boolean> {
   }
 
   // 写入预置分类
-  await db.categories.bulkAdd(DEFAULT_CATEGORIES)
+  await db.categories.bulkPut(DEFAULT_CATEGORIES)
 
   // 写入默认设置
   await db.settings.put({
