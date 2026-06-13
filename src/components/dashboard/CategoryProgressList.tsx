@@ -16,10 +16,15 @@ const STATUS_STYLES = {
     bg: 'bg-yellow-100',
     text: 'text-yellow-600',
   },
-  overspent: {
+  critical: {
     bar: 'bg-red-500',
     bg: 'bg-red-100',
     text: 'text-red-600',
+  },
+  overspent: {
+    bar: 'bg-gray-950',
+    bg: 'bg-gray-200',
+    text: 'text-gray-950',
   },
 } as const
 

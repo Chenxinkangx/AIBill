@@ -9,7 +9,7 @@ interface Props {
   monthlySurplus?: number
   isCurrentMonth: boolean
   totalIncome?: number
-  budgetStatus?: 'normal' | 'warning' | 'overspent'
+  budgetStatus?: 'normal' | 'warning' | 'critical' | 'overspent'
 }
 
 export default function BudgetSummary({
@@ -77,10 +77,12 @@ export default function BudgetSummary({
           <div
             className={`h-full rounded-full transition-all duration-500 ${
               progressStatus === 'overspent'
-                ? 'bg-red-500'
+                ? 'bg-gray-950'
+                : progressStatus === 'critical'
+                  ? 'bg-red-500'
                 : progressStatus === 'warning'
                   ? 'bg-yellow-500'
-                  : 'bg-indigo-500'
+                  : 'bg-green-500'
             }`}
             style={{ width: `${Math.min(usageRate * 100, 100)}%` }}
           />

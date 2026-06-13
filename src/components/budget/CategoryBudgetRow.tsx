@@ -7,7 +7,7 @@ interface Props {
   budget: number
   spent: number
   usageRate: number
-  status: 'normal' | 'warning' | 'overspent'
+  status: 'normal' | 'warning' | 'critical' | 'overspent'
   onBudgetChange: (value: number) => void
   onRename?: () => void
   onArchive?: () => void
@@ -79,7 +79,9 @@ export default function CategoryBudgetRow({
           <span
             className={
               status === 'overspent'
-                ? 'text-red-500'
+                ? 'text-gray-950'
+                : status === 'critical'
+                  ? 'text-red-500'
                 : status === 'warning'
                   ? 'text-yellow-500'
                   : 'text-green-500'
@@ -87,9 +89,11 @@ export default function CategoryBudgetRow({
           >
             {status === 'overspent'
               ? `超支 ${formatMoney(spent - budget)}`
-              : status === 'warning'
-                ? '接近预算上限'
-                : '预算充足'}
+              : status === 'critical'
+                ? '预算极限'
+                : status === 'warning'
+                  ? '预算紧张'
+                  : '预算宽裕'}
           </span>
           <span className="text-gray-400">{formatPercent(usageRate)}</span>
         </div>
