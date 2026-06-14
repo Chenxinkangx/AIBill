@@ -17,11 +17,11 @@ export function useRecords(month: string, categoryFilters: string[] = []) {
         db.categories.toArray(),
       ])
       const selected = new Set(categoryFilters)
-      setRecords(
+      const filtered =
         selected.size === 0
           ? data
           : data.filter((record) => selected.has(record.categoryId))
-      )
+      setRecords(sortRecordsByDateTime(filtered))
       setCategories(cats)
     } finally {
       setLoading(false)
@@ -67,4 +67,19 @@ export function useRecords(month: string, categoryFilters: string[] = []) {
     refresh,
     getCategoryName,
   }
+}
+
+function sortRecordsByDateTime(records: RecordItem[]) {
+  return [...records].sort((a, b) => {
+    const dateDiff = b.date.localeCompare(a.date)
+    if (dateDiff !== 0) return dateDiff
+
+    const bTime = Date.parse(b.createdAt || b.updatedAt)
+    const aTime = Date.parse(a.createdAt || a.updatedAt)
+    return safeTime(bTime) - safeTime(aTime)
+  })
+}
+
+function safeTime(value: number) {
+  return Number.isNaN(value) ? 0 : value
 }
