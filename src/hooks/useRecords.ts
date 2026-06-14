@@ -1,28 +1,32 @@
 import { useEffect, useState, useCallback } from 'react'
 import type { RecordItem, Category } from '../types'
-import { getRecordsByMonth, getRecordsByMonthAndCategory } from '../services/record/recordService'
+import { getRecordsByMonth } from '../services/record/recordService'
 import { db } from '../db/index'
 
-export function useRecords(month: string, categoryFilter: string = 'all') {
+export function useRecords(month: string, categoryFilters: string[] = []) {
   const [records, setRecords] = useState<RecordItem[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
+  const normalizedFilters = categoryFilters.join('|')
 
   const load = useCallback(async () => {
     setLoading(true)
     try {
       const [data, cats] = await Promise.all([
-        categoryFilter === 'all'
-          ? getRecordsByMonth(month)
-          : getRecordsByMonthAndCategory(month, categoryFilter),
+        getRecordsByMonth(month),
         db.categories.toArray(),
       ])
-      setRecords(data)
+      const selected = new Set(categoryFilters)
+      setRecords(
+        selected.size === 0
+          ? data
+          : data.filter((record) => selected.has(record.categoryId))
+      )
       setCategories(cats)
     } finally {
       setLoading(false)
     }
-  }, [month, categoryFilter])
+  }, [month, normalizedFilters])
 
   useEffect(() => {
     load()

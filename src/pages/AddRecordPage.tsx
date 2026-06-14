@@ -194,6 +194,7 @@ export default function AddRecordPage() {
             onChange={setAiInput}
             onParse={handleParse}
             parsing={parsing}
+            autoFocus={mode === 'ai'}
           />
 
           {/* AI Error */}

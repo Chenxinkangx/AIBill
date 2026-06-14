@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { db } from '../db/index'
 import { useAppStore } from '../stores/appStore'
 import { useSettingsStore } from '../stores/settingsStore'
-import { getBudgetSummary } from '../services/budget/calculator'
+import { getBudgetStatus, getBudgetSummary } from '../services/budget/calculator'
 import { getRecordsByMonth } from '../services/record/recordService'
-import { getToday, isCurrentMonth } from '../utils/date'
+import { getMonthProgress, getToday, isCurrentMonth } from '../utils/date'
 import type { Category, MonthlyBudget, CategoryBudget, RecordItem } from '../types'
 import { generateId } from '../utils/id'
 import { sumMoney } from '../utils/money'
@@ -60,6 +60,14 @@ export default function DashboardPage() {
     ? getBudgetSummary(monthlyBudget, categoryBudgets, records, categories, currentMonth, today)
     : null
   const totalIncome = sumMoney(records.filter((record) => record.type === 'income').map((record) => record.amount))
+  const totalBudgetStatus = budgetData?.summary
+    ? getBudgetStatus(
+        budgetData.summary.totalBudget > 0
+          ? budgetData.summary.totalExpense / budgetData.summary.totalBudget
+          : 0,
+        getMonthProgress(today)
+      )
+    : 'normal'
 
   const createDefaultBudget = async () => {
     if (!defaultMonthBudget || defaultMonthBudget <= 0) return
@@ -161,6 +169,7 @@ export default function DashboardPage() {
             monthlySurplus={budgetData.summary!.monthlySurplus}
             isCurrentMonth={_isCurrentMonth}
             totalIncome={totalIncome}
+            budgetStatus={totalBudgetStatus}
           />
 
           {/* Allocation hint */}

@@ -94,7 +94,7 @@ export interface CategoryBudgetStatus {
   spent: number
   remaining: number
   usageRate: number // 0-1（展示时乘以 100）
-  status: 'normal' | 'warning' | 'overspent'
+  status: 'normal' | 'warning' | 'critical' | 'overspent'
 }
 
 // ========== JSON 导入导出格式（不含 API Key） ==========

@@ -84,8 +84,9 @@ export function getTodaySuggestedAmount(
 export function getBudgetStatus(
   usageRate: number,
   monthProgress: number
-): 'normal' | 'warning' | 'overspent' {
+): 'normal' | 'warning' | 'critical' | 'overspent' {
   if (usageRate >= 1) return 'overspent'
+  if (usageRate >= 0.85) return 'critical'
   if (usageRate > monthProgress + 0.2) return 'warning'
   return 'normal'
 }

@@ -7,3 +7,25 @@
   --color-budget-yellow: #eab308;
   --color-budget-red: #ef4444;
 }
+
+html {
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+  background: #f8fafc;
+  color: #1f2937;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}

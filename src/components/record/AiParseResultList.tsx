@@ -23,15 +23,15 @@ export default function AiParseResultList({
     categories.filter((c) => (type === 'income' ? c.id === 'income' : c.budgetable))
 
   return (
-    <div className="bg-white rounded-xl overflow-hidden">
-      <div className="px-4 py-2.5 border-b border-gray-50">
+    <div className="bg-white rounded-2xl overflow-hidden shadow-sm shadow-gray-100/80">
+      <div className="px-4 py-3 border-b border-gray-100">
         <p className="text-sm font-medium text-gray-700">
           识别结果（{items.length} 条）
         </p>
       </div>
-      <div className="divide-y divide-gray-50">
+      <div className="divide-y divide-gray-100">
         {items.map((item, index) => (
-          <div key={index} className="px-4 py-3 space-y-2">
+          <div key={index} className="px-4 py-3.5 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 {item.confidence < 0.7 && (
@@ -47,20 +47,21 @@ export default function AiParseResultList({
               </div>
               <button
                 onClick={() => onRemove(index)}
-                className="text-red-400 hover:text-red-600 text-xs shrink-0 ml-2"
+                className="text-red-500 hover:text-red-600 text-xs shrink-0 ml-2 px-2 py-1 rounded-lg hover:bg-red-50"
               >
                 删除
               </button>
             </div>
 
-            <div className="flex items-center gap-2 text-sm">
+            <div className="grid grid-cols-2 gap-2 text-sm sm:flex sm:items-center">
               <input
                 type="number"
                 value={item.amount}
                 onChange={(e) => onUpdate(index, 'amount', Number(e.target.value))}
-                className="w-20 px-2 py-1 bg-gray-50 rounded-lg text-gray-700 text-sm outline-none [appearance:textfield]"
+                aria-label="金额"
+                className="w-full min-w-0 px-3 py-2 bg-gray-50 rounded-xl border border-transparent text-gray-800 text-sm outline-none focus:bg-white focus:border-indigo-300 [appearance:textfield] sm:w-20"
               />
-              <span className="text-gray-300">|</span>
+              <span className="hidden sm:inline text-gray-300">|</span>
               <select
                 value={item.type}
                 onChange={(e) => {
@@ -73,12 +74,13 @@ export default function AiParseResultList({
                   onUpdate(index, 'categoryId', nextCategory?.id ?? '')
                   onUpdate(index, 'categoryName', nextCategory?.name ?? '')
                 }}
-                className="text-sm text-gray-600 outline-none bg-transparent"
+                aria-label="类型"
+                className="w-full min-w-0 px-3 py-2 bg-gray-50 rounded-xl border border-transparent text-sm text-gray-700 outline-none focus:bg-white focus:border-indigo-300 sm:w-auto sm:bg-transparent sm:px-0 sm:py-0"
               >
                 <option value="expense">支出</option>
                 <option value="income">收入</option>
               </select>
-              <span className="text-gray-300">|</span>
+              <span className="hidden sm:inline text-gray-300">|</span>
               <select
                 value={
                   getOptionsForType(item.type).some((c) => c.id === item.categoryId)
@@ -90,7 +92,8 @@ export default function AiParseResultList({
                   onUpdate(index, 'categoryId', e.target.value)
                   onUpdate(index, 'categoryName', cat?.name ?? '')
                 }}
-                className="text-sm text-gray-600 outline-none bg-transparent"
+                aria-label="分类"
+                className="w-full min-w-0 px-3 py-2 bg-gray-50 rounded-xl border border-transparent text-sm text-gray-700 outline-none focus:bg-white focus:border-indigo-300 sm:w-auto sm:bg-transparent sm:px-0 sm:py-0"
               >
                 {getOptionsForType(item.type).map((cat) => (
                   <option key={cat.id} value={cat.id}>
@@ -98,23 +101,24 @@ export default function AiParseResultList({
                   </option>
                 ))}
               </select>
-              <span className="text-gray-300">|</span>
+              <span className="hidden sm:inline text-gray-300">|</span>
               <input
                 type="date"
                 value={item.date}
                 onChange={(e) => onUpdate(index, 'date', e.target.value)}
-                className="text-xs text-gray-500 outline-none bg-transparent"
+                aria-label="日期"
+                className="w-full min-w-0 px-3 py-2 bg-gray-50 rounded-xl border border-transparent text-sm text-gray-700 outline-none focus:bg-white focus:border-indigo-300 sm:w-auto sm:bg-transparent sm:px-0 sm:py-0 sm:text-xs sm:text-gray-500"
               />
             </div>
           </div>
         ))}
       </div>
 
-      <div className="px-4 py-3 border-t border-gray-50">
+      <div className="px-4 py-3 border-t border-gray-100">
         <button
           onClick={onConfirm}
           disabled={saving || items.length === 0}
-          className="w-full py-2.5 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full py-3 bg-green-600 text-white rounded-2xl text-sm font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {saving ? '保存中...' : `确认保存（${items.length} 条）`}
         </button>

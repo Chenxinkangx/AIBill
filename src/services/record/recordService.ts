@@ -5,10 +5,14 @@ import type { ParsedRecordItem, RecordItem } from '../../types'
 export function normalizeRecordInput(
   data: Omit<RecordItem, 'id' | 'createdAt' | 'updatedAt'>
 ): Omit<RecordItem, 'id' | 'createdAt' | 'updatedAt'> {
+  if (!Number.isFinite(data.amount) || data.amount <= 0) {
+    throw new Error('金额必须大于 0')
+  }
+
   return {
     ...data,
     title: data.title.trim(),
-    amount: Math.max(0, data.amount),
+    amount: data.amount,
     categoryId: data.type === 'income' ? 'income' : data.categoryId,
   }
 }
@@ -33,7 +37,7 @@ export async function createRecordsFromParsed(items: ParsedRecordItem[]): Promis
   const records: RecordItem[] = items.map((item) => ({
     id: generateId(),
     title: item.title.trim() || '未命名',
-    amount: Math.max(0, item.amount),
+    amount: item.amount,
     categoryId: item.type === 'income' ? 'income' : item.categoryId ?? 'cat-other',
     type: item.type,
     date: item.date,
@@ -41,6 +45,10 @@ export async function createRecordsFromParsed(items: ParsedRecordItem[]): Promis
     createdAt: now,
     updatedAt: now,
   }))
+
+  if (records.some((record) => !Number.isFinite(record.amount) || record.amount <= 0)) {
+    throw new Error('金额必须大于 0')
+  }
 
   await db.records.bulkAdd(records)
   return records

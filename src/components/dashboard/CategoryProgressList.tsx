@@ -16,10 +16,15 @@ const STATUS_STYLES = {
     bg: 'bg-yellow-100',
     text: 'text-yellow-600',
   },
-  overspent: {
+  critical: {
     bar: 'bg-red-500',
     bg: 'bg-red-100',
     text: 'text-red-600',
+  },
+  overspent: {
+    bar: 'bg-gray-950',
+    bg: 'bg-gray-200',
+    text: 'text-gray-950',
   },
 } as const
 
@@ -37,7 +42,7 @@ export default function CategoryProgressList({ categoryStatuses }: Props) {
           return (
             <div
               key={cat.categoryId}
-              className="bg-white rounded-xl px-4 py-3 space-y-1.5"
+              className="bg-white rounded-2xl px-4 py-3.5 space-y-2 shadow-sm shadow-gray-100/80"
             >
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-800">
@@ -58,8 +63,8 @@ export default function CategoryProgressList({ categoryStatuses }: Props) {
                       style={{ width: `${percent}%` }}
                     />
                   </div>
-                  <div className="flex justify-between text-xs text-gray-400">
-                    <span>已花 {formatMoney(cat.spent)}</span>
+                  <div className="flex flex-wrap justify-between gap-x-3 gap-y-1 text-xs text-gray-500">
+                    <span>已花 {formatMoney(cat.spent)} / 预算 {formatMoney(cat.budget)}</span>
                     <span>剩余 {formatMoney(cat.remaining)}</span>
                   </div>
                 </>

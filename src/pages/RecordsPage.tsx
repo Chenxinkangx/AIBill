@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom'
 
 export default function RecordsPage() {
   const currentMonth = useAppStore((s) => s.currentMonth)
-  const [categoryFilter, setCategoryFilter] = useState('all')
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([])
   const navigate = useNavigate()
 
   const {
@@ -18,7 +18,7 @@ export default function RecordsPage() {
     loading,
     refresh,
     getCategoryName,
-  } = useRecords(currentMonth, categoryFilter)
+  } = useRecords(currentMonth, selectedCategoryIds)
 
   const budgetableCategories = categories.filter(
     (c) => c.budgetable || c.id === 'income'
@@ -29,6 +29,20 @@ export default function RecordsPage() {
     { id: 'all', name: '全部分类' },
     ...budgetableCategories.map((c) => ({ id: c.id, name: c.name })),
   ]
+  const selectedCount = selectedCategoryIds.length
+
+  const toggleCategory = (categoryId: string) => {
+    if (categoryId === 'all') {
+      setSelectedCategoryIds([])
+      return
+    }
+
+    setSelectedCategoryIds((prev) =>
+      prev.includes(categoryId)
+        ? prev.filter((id) => id !== categoryId)
+        : [...prev, categoryId]
+    )
+  }
 
   if (loading) {
     return (
@@ -46,20 +60,35 @@ export default function RecordsPage() {
       <MonthPicker />
 
       {/* Filter */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {filterOptions.map((opt) => (
-          <button
-            key={opt.id}
-            onClick={() => setCategoryFilter(opt.id)}
-            className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-medium transition-colors ${
-              categoryFilter === opt.id
-                ? 'bg-indigo-500 text-white'
-                : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-            }`}
-          >
-            {opt.name}
-          </button>
-        ))}
+      <div className="rounded-2xl bg-white px-4 py-3 shadow-sm shadow-gray-100/80">
+        <div className="mb-2 flex items-center justify-between">
+          <p className="text-sm font-medium text-gray-700">分类筛选</p>
+          <p className="text-xs text-gray-400">
+            {selectedCount > 0 ? `已选 ${selectedCount} 个` : '默认全部'}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {filterOptions.map((opt) => {
+            const active =
+              opt.id === 'all'
+                ? selectedCategoryIds.length === 0
+                : selectedCategoryIds.includes(opt.id)
+
+            return (
+              <button
+                key={opt.id}
+                onClick={() => toggleCategory(opt.id)}
+                className={`rounded-full px-3.5 py-2 text-sm font-medium transition-colors ${
+                  active
+                    ? 'bg-indigo-500 text-white shadow-sm shadow-indigo-200'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {opt.name}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       {/* Empty State */}

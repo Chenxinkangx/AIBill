@@ -59,7 +59,7 @@ export default function ManualForm({ categories, onSave, saving }: Props) {
         <input
           {...register('title')}
           placeholder="如：午饭、地铁、买书"
-          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-indigo-400 transition-colors"
+          className="w-full px-4 py-3 rounded-2xl border border-gray-200 bg-white text-base outline-none focus:border-indigo-400 transition-colors"
         />
         {errors.title && (
           <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>
@@ -75,7 +75,7 @@ export default function ManualForm({ categories, onSave, saving }: Props) {
             step="0.01"
             {...register('amount', { valueAsNumber: true })}
             placeholder="0.00"
-            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-indigo-400 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="w-full min-w-0 px-4 py-3 rounded-2xl border border-gray-200 bg-white text-base outline-none focus:border-indigo-400 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
           {errors.amount && (
             <p className="text-red-500 text-xs mt-1">{errors.amount.message}</p>
@@ -85,7 +85,7 @@ export default function ManualForm({ categories, onSave, saving }: Props) {
           <label className="block text-sm font-medium text-gray-600 mb-1">类型</label>
           <select
             {...register('type')}
-            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-indigo-400 transition-colors bg-white"
+            className="w-full min-w-0 px-4 py-3 rounded-2xl border border-gray-200 text-base outline-none focus:border-indigo-400 transition-colors bg-white"
           >
             <option value="expense">支出</option>
             <option value="income">收入</option>
@@ -99,7 +99,7 @@ export default function ManualForm({ categories, onSave, saving }: Props) {
           <label className="block text-sm font-medium text-gray-600 mb-1">分类</label>
           <select
             {...register('categoryId')}
-            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-indigo-400 transition-colors bg-white"
+            className="w-full min-w-0 px-4 py-3 rounded-2xl border border-gray-200 text-base outline-none focus:border-indigo-400 transition-colors bg-white"
           >
             <option value="">选择分类</option>
             {categories
@@ -121,7 +121,7 @@ export default function ManualForm({ categories, onSave, saving }: Props) {
           <input
             type="date"
             {...register('date')}
-            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-indigo-400 transition-colors"
+            className="w-full min-w-0 px-4 py-3 rounded-2xl border border-gray-200 bg-white text-base outline-none focus:border-indigo-400 transition-colors"
           />
           {errors.date && (
             <p className="text-red-500 text-xs mt-1">{errors.date.message}</p>
@@ -135,7 +135,7 @@ export default function ManualForm({ categories, onSave, saving }: Props) {
         <input
           {...register('note')}
           placeholder="补充说明"
-          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-indigo-400 transition-colors"
+          className="w-full px-4 py-3 rounded-2xl border border-gray-200 bg-white text-base outline-none focus:border-indigo-400 transition-colors"
         />
       </div>
 
@@ -143,7 +143,7 @@ export default function ManualForm({ categories, onSave, saving }: Props) {
       <button
         type="submit"
         disabled={saving}
-        className="w-full py-3 bg-indigo-500 text-white rounded-xl font-medium hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="w-full py-3.5 bg-indigo-500 text-white rounded-2xl font-semibold hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         {saving ? '保存中...' : '保存'}
       </button>

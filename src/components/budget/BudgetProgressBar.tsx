@@ -1,19 +1,21 @@
 interface Props {
   usageRate: number
-  status: 'normal' | 'warning' | 'overspent'
+  status: 'normal' | 'warning' | 'critical' | 'overspent'
   height?: number
 }
 
 const STATUS_COLORS = {
   normal: 'bg-green-500',
   warning: 'bg-yellow-500',
-  overspent: 'bg-red-500',
+  critical: 'bg-red-500',
+  overspent: 'bg-gray-950',
 }
 
 const STATUS_BG = {
   normal: 'bg-green-100',
   warning: 'bg-yellow-100',
-  overspent: 'bg-red-100',
+  critical: 'bg-red-100',
+  overspent: 'bg-gray-200',
 }
 
 export default function BudgetProgressBar({ usageRate, status, height = 6 }: Props) {
