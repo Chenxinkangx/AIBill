@@ -197,14 +197,27 @@ src/
 server/
 ├─ src/main/java/com/aibill/
 │  ├─ AibillApplication.java
+│  │
 │  ├─ common/
-│  │  ├─ config/
-│  │  ├─ exception/
-│  │  ├─ response/
-│  │  ├─ security/
-│  │  └─ validation/
+│  │  ├─ config/           # 通用配置
+│  │  ├─ exception/        # 全局异常
+│  │  ├─ response/         # 统一响应 ApiResponse
+│  │  ├─ security/         # JWT、鉴权、当前用户
+│  │  ├─ validation/       # 通用校验
+│  │  └─ util/             # 通用工具类
+│  │
 │  ├─ auth/
+│  │  ├─ controller/
+│  │  ├─ service/
+│  │  ├─ dto/
+│  │  └─ vo/
+│  │
 │  ├─ user/
+│  │  ├─ service/
+│  │  ├─ mapper/
+│  │  ├─ entity/
+│  │  └─ vo/
+│  │
 │  ├─ budgetcategory/
 │  │  ├─ controller/
 │  │  ├─ service/
@@ -212,6 +225,7 @@ server/
 │  │  ├─ entity/
 │  │  ├─ dto/
 │  │  └─ vo/
+│  │
 │  ├─ tag/
 │  │  ├─ controller/
 │  │  ├─ service/
@@ -219,7 +233,7 @@ server/
 │  │  ├─ entity/
 │  │  ├─ dto/
 │  │  └─ vo/
-│  ├─ budget/
+│  │
 │  ├─ record/
 │  │  ├─ controller/
 │  │  ├─ service/
@@ -227,14 +241,50 @@ server/
 │  │  ├─ entity/
 │  │  ├─ dto/
 │  │  └─ vo/
+│  │
+│  ├─ budget/
+│  │  ├─ controller/
+│  │  ├─ service/
+│  │  ├─ mapper/
+│  │  ├─ entity/
+│  │  ├─ dto/
+│  │  └─ vo/
+│  │
 │  ├─ setting/
-│  ├─ sync/
+│  │  ├─ controller/
+│  │  ├─ service/
+│  │  ├─ mapper/
+│  │  ├─ entity/
+│  │  ├─ dto/
+│  │  └─ vo/
+│  │
 │  ├─ ai/
-│  └─ backup/
+│  │  ├─ controller/
+│  │  ├─ service/
+│  │  ├─ provider/
+│  │  ├─ prompt/
+│  │  ├─ dto/
+│  │  └─ vo/
+│  │
+│  ├─ backup/
+│  │  ├─ controller/
+│  │  ├─ service/
+│  │  ├─ dto/
+│  │  └─ vo/
+│  │
+│  └─ sync/                # V2.1 再实现，V2.0 可以先空着或不建
+│     ├─ controller/
+│     ├─ service/
+│     ├─ mapper/
+│     ├─ entity/
+│     ├─ dto/
+│     └─ vo/
+│
 ├─ src/main/resources/
 │  ├─ application.yml
 │  ├─ application-dev.yml
 │  └─ db/migration/
+│
 ├─ src/test/java/com/aibill/
 ├─ Dockerfile
 └─ pom.xml
