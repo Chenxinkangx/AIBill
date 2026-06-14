@@ -8,9 +8,16 @@ interface Props {
   categories: Category[]
   onUpdated: () => void
   onDeleted: () => void
+  showDeleteAction?: boolean
 }
 
-export default function RecordActions({ record, categories, onUpdated, onDeleted }: Props) {
+export default function RecordActions({
+  record,
+  categories,
+  onUpdated,
+  onDeleted,
+  showDeleteAction = true,
+}: Props) {
   const [editing, setEditing] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -156,19 +163,21 @@ export default function RecordActions({ record, categories, onUpdated, onDeleted
 
   return (
     <>
-      <div className="flex gap-1 mt-1">
+      <div className="flex gap-1 mt-2">
         <button
           onClick={() => setEditing(true)}
-          className="px-3 py-1 text-xs text-indigo-500 hover:bg-indigo-50 rounded-lg transition-colors"
+          className="px-3 py-1.5 text-xs font-medium text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
         >
           编辑
         </button>
-        <button
-          onClick={() => setDeleting(true)}
-          className="px-3 py-1 text-xs text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-        >
-          删除
-        </button>
+        {showDeleteAction && (
+          <button
+            onClick={() => setDeleting(true)}
+            className="px-3 py-1.5 text-xs font-medium text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+          >
+            删除
+          </button>
+        )}
       </div>
 
       <ConfirmDialog
