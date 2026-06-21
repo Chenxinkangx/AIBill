@@ -5,6 +5,7 @@ interface Props {
   onChange: (value: string) => void
   onParse: () => void
   parsing: boolean
+  hasParsedResult?: boolean
   autoFocus?: boolean
   focusRequestKey?: number
 }
@@ -14,6 +15,7 @@ export default function AiInputBox({
   onChange,
   onParse,
   parsing,
+  hasParsedResult = false,
   autoFocus,
   focusRequestKey = 0,
 }: Props) {
@@ -45,7 +47,7 @@ export default function AiInputBox({
         disabled={parsing || !value.trim()}
         className="w-full py-3 bg-indigo-500 text-white rounded-2xl text-sm font-semibold hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
-        {parsing ? 'AI 解析中...' : '智能识别'}
+        {parsing ? 'AI 解析中...' : hasParsedResult ? '重新识别' : '智能识别'}
       </button>
     </div>
   )

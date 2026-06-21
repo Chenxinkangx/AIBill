@@ -14,6 +14,7 @@ import type { ManualRecordFormValues } from '../services/record/validation'
 import EmptyState from '../components/common/EmptyState'
 import Toast from '../components/common/Toast'
 import { useToast } from '../hooks/useToast'
+import ConfirmDialog from '../components/common/ConfirmDialog'
 
 export default function AddRecordPage() {
   const navigate = useNavigate()
@@ -32,6 +33,7 @@ export default function AddRecordPage() {
   const [parsing, setParsing] = useState(false)
   const [parsedItems, setParsedItems] = useState<ParsedRecordItem[]>([])
   const [aiError, setAiError] = useState<string | null>(null)
+  const [confirmingReparse, setConfirmingReparse] = useState(false)
 
   // Tab state
   const [mode, setMode] = useState<'ai' | 'manual'>('ai')
@@ -68,6 +70,19 @@ export default function AddRecordPage() {
       setParsedItems(result.items)
     }
     setParsing(false)
+  }
+
+  const handleParseRequest = () => {
+    if (parsedItems.length > 0) {
+      setConfirmingReparse(true)
+      return
+    }
+    void handleParse()
+  }
+
+  const handleConfirmReparse = async () => {
+    setConfirmingReparse(false)
+    await handleParse()
   }
 
   const handleRemoveParsedItem = (index: number) => {
@@ -198,8 +213,9 @@ export default function AddRecordPage() {
           <AiInputBox
             value={aiInput}
             onChange={setAiInput}
-            onParse={handleParse}
+            onParse={handleParseRequest}
             parsing={parsing}
+            hasParsedResult={parsedItems.length > 0}
             autoFocus={mode === 'ai'}
             focusRequestKey={aiFocusRequestKey}
           />
@@ -238,6 +254,16 @@ export default function AddRecordPage() {
           <ManualForm categories={categories} tags={tags} onSave={handleManualSave} saving={saving} />
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmingReparse}
+        title="重新识别账单"
+        message="重新识别会替换当前识别结果，你已经调整的金额、预算分类和标签也会丢失。确定继续吗？"
+        confirmLabel="重新识别"
+        cancelLabel="保留当前结果"
+        onConfirm={handleConfirmReparse}
+        onCancel={() => setConfirmingReparse(false)}
+      />
 
       <Toast toast={toast} />
     </div>
