@@ -1,6 +1,7 @@
 import DataManagement from '../components/settings/DataManagement'
 import AiConfig from '../components/settings/AiConfig'
 import CurrencySetting from '../components/settings/CurrencySetting'
+import TagManagement from '../components/settings/TagManagement'
 
 export default function SettingsPage() {
   return (
@@ -8,6 +9,7 @@ export default function SettingsPage() {
       <h1 className="text-xl font-bold text-gray-800">设置</h1>
 
       <DataManagement />
+      <TagManagement />
       <AiConfig />
       <CurrencySetting />
 

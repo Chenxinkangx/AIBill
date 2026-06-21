@@ -1,6 +1,6 @@
 import type {
   RecordItem,
-  Category,
+  BudgetCategory,
   CategoryBudget,
   MonthlyBudget,
   BudgetSummary,
@@ -26,14 +26,14 @@ export function getMonthlyExpense(records: RecordItem[], month: string): number 
 export function getCategoryExpense(
   records: RecordItem[],
   month: string,
-  categoryId: string
+  budgetCategoryId: string
 ): number {
   const { startDate, endDate } = getMonthDateRange(month)
   const amounts = records
     .filter(
       (r) =>
         r.type === 'expense' &&
-        r.categoryId === categoryId &&
+        r.budgetCategoryId === budgetCategoryId &&
         r.date >= startDate &&
         r.date <= endDate
     )
@@ -109,7 +109,7 @@ export function getBudgetAllocationDiff(
  * 获取某月份所有分类的预算状态列表
  */
 export function getCategoryBudgetStatuses(
-  categories: Category[],
+  categories: BudgetCategory[],
   categoryBudgets: CategoryBudget[],
   records: RecordItem[],
   month: string,
@@ -119,13 +119,13 @@ export function getCategoryBudgetStatuses(
   const budgetableCategories = categories.filter((c) => c.budgetable && !c.archived)
 
   return budgetableCategories.map((cat) => {
-    const budgetRow = categoryBudgets.find((cb) => cb.categoryId === cat.id)
+    const budgetRow = categoryBudgets.find((cb) => cb.budgetCategoryId === cat.id)
     const budget = budgetRow?.amount ?? 0
     const spent = getCategoryExpense(records, month, cat.id)
     const usageRate = budget > 0 ? spent / budget : 0
 
     return {
-      categoryId: cat.id,
+      budgetCategoryId: cat.id,
       categoryName: cat.name,
       budget,
       spent,
@@ -143,7 +143,7 @@ export function getBudgetSummary(
   monthlyBudget: MonthlyBudget | null,
   categoryBudgets: CategoryBudget[],
   records: RecordItem[],
-  categories: Category[],
+  categories: BudgetCategory[],
   month: string,
   today: string
 ): {

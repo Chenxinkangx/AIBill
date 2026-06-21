@@ -1,4 +1,4 @@
-import type { ParsedRecordItem, Category } from '../../types'
+import type { ParsedRecordItem, BudgetCategory, Tag } from '../../types'
 import { buildPrompt } from './prompt'
 import { callLlmApi } from './aiClient'
 import { normalizeParsedItems } from './normalize'
@@ -15,8 +15,9 @@ export interface ParseResult {
  */
 export async function parseNaturalLanguageRecord(
   input: string,
-  categories: Category[],
-  today: string
+  categories: BudgetCategory[],
+  today: string,
+  tags: Tag[] = []
 ): Promise<ParseResult> {
   if (!input.trim()) {
     return { items: [], error: null }
@@ -32,7 +33,7 @@ export async function parseNaturalLanguageRecord(
     }
   }
 
-  const prompt = buildPrompt(input, categories, today)
+  const prompt = buildPrompt(input, categories, today, tags)
   const response = await callLlmApi(prompt, {
     apiKey,
     model: settings.settings?.aiModel ?? 'deepseek-v4-flash',
@@ -58,7 +59,11 @@ export async function parseNaturalLanguageRecord(
     }
   }
 
-  const items = normalizeParsedItems(jsonData, categories)
+  const originalInput = input.trim()
+  const items = normalizeParsedItems(jsonData, categories, tags).map((item) => ({
+    ...item,
+    rawText: originalInput,
+  }))
 
   if (items.length === 0) {
     return {

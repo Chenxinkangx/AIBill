@@ -5,10 +5,20 @@ interface Props {
   onChange: (value: string) => void
   onParse: () => void
   parsing: boolean
+  hasParsedResult?: boolean
   autoFocus?: boolean
+  focusRequestKey?: number
 }
 
-export default function AiInputBox({ value, onChange, onParse, parsing, autoFocus }: Props) {
+export default function AiInputBox({
+  value,
+  onChange,
+  onParse,
+  parsing,
+  hasParsedResult = false,
+  autoFocus,
+  focusRequestKey = 0,
+}: Props) {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
   useEffect(() => {
@@ -17,7 +27,7 @@ export default function AiInputBox({ value, onChange, onParse, parsing, autoFocu
       textareaRef.current?.focus()
     }, 80)
     return () => window.clearTimeout(timer)
-  }, [autoFocus])
+  }, [autoFocus, focusRequestKey])
 
   return (
     <div className="bg-white rounded-2xl p-4 space-y-3 shadow-sm shadow-gray-100/80">
@@ -37,7 +47,7 @@ export default function AiInputBox({ value, onChange, onParse, parsing, autoFocu
         disabled={parsing || !value.trim()}
         className="w-full py-3 bg-indigo-500 text-white rounded-2xl text-sm font-semibold hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
-        {parsing ? 'AI 解析中...' : '智能识别'}
+        {parsing ? 'AI 解析中...' : hasParsedResult ? '重新识别' : '智能识别'}
       </button>
     </div>
   )

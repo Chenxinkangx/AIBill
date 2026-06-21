@@ -68,6 +68,7 @@ export default function DataManagement() {
         db.monthlyBudgets.clear(),
         db.categoryBudgets.clear(),
         db.records.clear(),
+        db.tags.clear(),
         db.settings.clear(),
       ])
       // Re-initialize with default categories

@@ -29,3 +29,13 @@ textarea {
 .safe-area-bottom {
   padding-bottom: env(safe-area-inset-bottom);
 }
+
+.budget-ring-progress {
+  transition: stroke-dashoffset 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .budget-ring-progress {
+    transition: none;
+  }
+}

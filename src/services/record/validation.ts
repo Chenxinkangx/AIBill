@@ -5,7 +5,8 @@ export const manualRecordSchema = z.object({
   amount: z
     .number({ message: '请输入有效金额' })
     .positive('金额必须大于 0'),
-  categoryId: z.string().min(1, '请选择分类'),
+  budgetCategoryId: z.string().min(1, '请选择预算分类'),
+  tagIds: z.array(z.string()),
   type: z.enum(['expense', 'income']),
   date: z.string().min(1, '请选择日期'),
   note: z.string().optional(),

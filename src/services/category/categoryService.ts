@@ -1,8 +1,8 @@
 import { db } from '../../db/index'
-import type { Category } from '../../types'
+import type { BudgetCategory } from '../../types'
 import { generateId } from '../../utils/id'
 
-export async function createCategory(name: string): Promise<Category> {
+export async function createCategory(name: string): Promise<BudgetCategory> {
   const trimmed = name.trim()
   if (!trimmed) {
     throw new Error('请填写分类名称')
@@ -17,7 +17,7 @@ export async function createCategory(name: string): Promise<Category> {
 
   const categories = await db.categories.toArray()
   const maxOrder = categories.reduce((max, category) => Math.max(max, category.order), 0)
-  const category: Category = {
+  const category: BudgetCategory = {
     id: generateId(),
     name: trimmed,
     order: maxOrder + 1,

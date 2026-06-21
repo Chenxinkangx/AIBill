@@ -1,6 +1,6 @@
 // ========== 分类 ==========
 
-export interface Category {
+export interface BudgetCategory {
   id: string
   name: string
   icon?: string
@@ -26,7 +26,7 @@ export interface MonthlyBudget {
 
 export interface CategoryBudget {
   id: string
-  categoryId: string
+  budgetCategoryId: string
   month: string // "2026-06"
   amount: number
   createdAt: string
@@ -39,7 +39,8 @@ export interface RecordItem {
   id: string
   title: string
   amount: number // 必须 > 0
-  categoryId: string
+  budgetCategoryId: string
+  tagIds: string[]
   type: 'expense' | 'income'
   date: string // "2026-06-09"
   note?: string
@@ -53,12 +54,25 @@ export interface RecordItem {
 export interface ParsedRecordItem {
   title: string
   amount: number
-  categoryId?: string
-  categoryName: string
+  budgetCategoryId?: string
+  budgetCategoryName: string
+  tagNames: string[]
   type: 'expense' | 'income'
   date: string
   confidence: number
   rawText?: string
+}
+
+// ========== 标签（不参与预算扣减） ==========
+
+export interface Tag {
+  id: string
+  name: string
+  color?: string
+  order: number
+  archived?: boolean
+  createdAt: string
+  updatedAt: string
 }
 
 // ========== 全局设置（存入 IndexedDB，参与 JSON 导出） ==========
@@ -88,7 +102,7 @@ export interface BudgetSummary {
 }
 
 export interface CategoryBudgetStatus {
-  categoryId: string
+  budgetCategoryId: string
   categoryName: string
   budget: number
   spent: number
@@ -104,7 +118,8 @@ export interface ExportData {
   version: string // "1.0.0"
   exportedAt: string // ISO 时间戳
   data: {
-    categories: Category[]
+    budgetCategories: BudgetCategory[]
+    tags: Tag[]
     monthlyBudgets: MonthlyBudget[]
     categoryBudgets: CategoryBudget[]
     records: RecordItem[]
