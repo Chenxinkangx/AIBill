@@ -28,6 +28,7 @@ export default function AddRecordPage() {
 
   // AI mode state
   const [aiInput, setAiInput] = useState('')
+  const [aiFocusRequestKey, setAiFocusRequestKey] = useState(0)
   const [parsing, setParsing] = useState(false)
   const [parsedItems, setParsedItems] = useState<ParsedRecordItem[]>([])
   const [aiError, setAiError] = useState<string | null>(null)
@@ -103,6 +104,7 @@ export default function AddRecordPage() {
       showToast('success', `已保存 ${records.length} 条账单`)
       setParsedItems([])
       setAiInput('')
+      setAiFocusRequestKey((key) => key + 1)
 
       loadRecords(currentMonth)
     } catch {
@@ -199,6 +201,7 @@ export default function AddRecordPage() {
             onParse={handleParse}
             parsing={parsing}
             autoFocus={mode === 'ai'}
+            focusRequestKey={aiFocusRequestKey}
           />
 
           {/* AI Error */}

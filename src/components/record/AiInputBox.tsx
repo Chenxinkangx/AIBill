@@ -6,9 +6,17 @@ interface Props {
   onParse: () => void
   parsing: boolean
   autoFocus?: boolean
+  focusRequestKey?: number
 }
 
-export default function AiInputBox({ value, onChange, onParse, parsing, autoFocus }: Props) {
+export default function AiInputBox({
+  value,
+  onChange,
+  onParse,
+  parsing,
+  autoFocus,
+  focusRequestKey = 0,
+}: Props) {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
   useEffect(() => {
@@ -17,7 +25,7 @@ export default function AiInputBox({ value, onChange, onParse, parsing, autoFocu
       textareaRef.current?.focus()
     }, 80)
     return () => window.clearTimeout(timer)
-  }, [autoFocus])
+  }, [autoFocus, focusRequestKey])
 
   return (
     <div className="bg-white rounded-2xl p-4 space-y-3 shadow-sm shadow-gray-100/80">
