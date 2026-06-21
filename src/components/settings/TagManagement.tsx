@@ -5,16 +5,21 @@ import { archiveTag, createTag, renameTag, restoreTag } from '../../services/tag
 import Toast from '../common/Toast'
 import { useToast } from '../../hooks/useToast'
 
+const PAGE_SIZE = 6
+
 export default function TagManagement() {
   const [tags, setTags] = useState<Tag[]>([])
   const [newName, setNewName] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingName, setEditingName] = useState('')
+  const [activePage, setActivePage] = useState(1)
+  const [archivedPage, setArchivedPage] = useState(1)
   const { toast, showToast } = useToast()
 
   const load = useCallback(async () => {
     const data = await db.tags.orderBy('order').toArray()
     setTags(data)
+    return data
   }, [])
 
   useEffect(() => {
@@ -33,6 +38,31 @@ export default function TagManagement() {
 
   const active = tags.filter((tag) => !tag.archived)
   const archived = tags.filter((tag) => tag.archived)
+  const activePageCount = Math.max(1, Math.ceil(active.length / PAGE_SIZE))
+  const archivedPageCount = Math.max(1, Math.ceil(archived.length / PAGE_SIZE))
+  const visibleActive = active.slice((activePage - 1) * PAGE_SIZE, activePage * PAGE_SIZE)
+  const visibleArchived = archived.slice((archivedPage - 1) * PAGE_SIZE, archivedPage * PAGE_SIZE)
+
+  useEffect(() => {
+    setActivePage((page) => Math.min(page, activePageCount))
+  }, [activePageCount])
+
+  useEffect(() => {
+    setArchivedPage((page) => Math.min(page, archivedPageCount))
+  }, [archivedPageCount])
+
+  const handleCreateTag = async () => {
+    try {
+      await createTag(newName)
+      setNewName('')
+      const data = await load()
+      const activeCount = data.filter((tag) => !tag.archived).length
+      setActivePage(Math.max(1, Math.ceil(activeCount / PAGE_SIZE)))
+      showToast('success', '标签已添加')
+    } catch (error) {
+      showToast('error', error instanceof Error ? error.message : '添加标签失败')
+    }
+  }
 
   return (
     <div className="space-y-3">
@@ -49,10 +79,7 @@ export default function TagManagement() {
             onKeyDown={(event) => {
               if (event.key === 'Enter') {
                 event.preventDefault()
-                run(async () => {
-                  await createTag(newName)
-                  setNewName('')
-                }, '标签已添加')
+                void handleCreateTag()
               }
             }}
             placeholder="例如：约会、外卖、冲动消费"
@@ -60,10 +87,7 @@ export default function TagManagement() {
           />
           <button
             type="button"
-            onClick={() => run(async () => {
-              await createTag(newName)
-              setNewName('')
-            }, '标签已添加')}
+            onClick={() => void handleCreateTag()}
             className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white"
           >
             添加
@@ -74,7 +98,7 @@ export default function TagManagement() {
           <p className="py-3 text-center text-sm text-gray-400">暂时没有标签</p>
         ) : (
           <div className="divide-y divide-gray-50">
-            {active.map((tag) => (
+            {visibleActive.map((tag) => (
               <div key={tag.id} className="flex items-center gap-3 py-2.5">
                 <span className="h-3 w-3 rounded-full" style={{ backgroundColor: tag.color }} />
                 {editingId === tag.id ? (
@@ -110,13 +134,22 @@ export default function TagManagement() {
                 >归档</button>
               </div>
             ))}
+            <Pagination
+              page={activePage}
+              pageCount={activePageCount}
+              onPageChange={setActivePage}
+              label="启用标签"
+            />
           </div>
         )}
       </div>
 
       {archived.length > 0 && (
         <div className="rounded-xl bg-white px-4 py-2">
-          {archived.map((tag) => (
+          <div className="border-b border-gray-100 py-2 text-xs font-medium text-gray-500">
+            已归档标签
+          </div>
+          {visibleArchived.map((tag) => (
             <div key={tag.id} className="flex items-center justify-between border-b border-gray-50 py-2.5 last:border-0">
               <span className="text-sm text-gray-400">{tag.name}</span>
               <button
@@ -126,9 +159,56 @@ export default function TagManagement() {
               >恢复</button>
             </div>
           ))}
+          <Pagination
+            page={archivedPage}
+            pageCount={archivedPageCount}
+            onPageChange={setArchivedPage}
+            label="已归档标签"
+          />
         </div>
       )}
       <Toast toast={toast} />
     </div>
+  )
+}
+
+function Pagination({
+  page,
+  pageCount,
+  onPageChange,
+  label,
+}: {
+  page: number
+  pageCount: number
+  onPageChange: (page: number) => void
+  label: string
+}) {
+  if (pageCount <= 1) return null
+
+  return (
+    <nav
+      aria-label={`${label}分页`}
+      className="flex items-center justify-between border-t border-gray-100 pt-3"
+    >
+      <button
+        type="button"
+        disabled={page <= 1}
+        onClick={() => onPageChange(page - 1)}
+        className="rounded-lg px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-300"
+      >
+        上一页
+      </button>
+      <span className="text-xs tabular-nums text-gray-500">
+        {page} / {pageCount}
+      </span>
+      <button
+        type="button"
+        disabled={page >= pageCount}
+        onClick={() => onPageChange(page + 1)}
+        className="rounded-lg px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-300"
+      >
+        下一页
+      </button>
+    </nav>
   )
 }
