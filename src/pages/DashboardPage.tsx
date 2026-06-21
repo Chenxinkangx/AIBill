@@ -185,6 +185,8 @@ export default function DashboardPage() {
           {budgetData.categoryStatuses.length > 0 && (
             <CategoryProgressList
               categoryStatuses={budgetData.categoryStatuses}
+              records={records}
+              month={currentMonth}
             />
           )}
         </>

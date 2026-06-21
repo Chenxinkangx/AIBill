@@ -1,9 +1,13 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { CategoryBudgetStatus } from '../../types'
+import type { CategoryBudgetStatus, RecordItem } from '../../types'
 import { formatMoney } from '../../utils/money'
+import CategorySpendingDialog from './CategorySpendingDialog'
 
 interface Props {
   categoryStatuses: CategoryBudgetStatus[]
+  records: RecordItem[]
+  month: string
 }
 
 const RADIUS = 48
@@ -32,8 +36,9 @@ const STATUS_STYLES = {
   },
 } as const
 
-export default function CategoryProgressList({ categoryStatuses }: Props) {
+export default function CategoryProgressList({ categoryStatuses, records, month }: Props) {
   const navigate = useNavigate()
+  const [selectedCategory, setSelectedCategory] = useState<CategoryBudgetStatus | null>(null)
   if (categoryStatuses.length === 0) return null
 
   const fundedCategories = categoryStatuses.filter((category) => category.budget > 0)
@@ -51,7 +56,11 @@ export default function CategoryProgressList({ categoryStatuses }: Props) {
       {fundedCategories.length > 0 && (
         <div className="grid grid-cols-3 gap-2">
           {fundedCategories.map((category) => (
-            <BudgetRing key={category.budgetCategoryId} category={category} />
+            <BudgetRing
+              key={category.budgetCategoryId}
+              category={category}
+              onClick={() => setSelectedCategory(category)}
+            />
           ))}
         </div>
       )}
@@ -71,11 +80,18 @@ export default function CategoryProgressList({ categoryStatuses }: Props) {
           <span aria-hidden="true" className="text-lg text-gray-400">›</span>
         </button>
       )}
+
+      <CategorySpendingDialog
+        category={selectedCategory}
+        records={records}
+        month={month}
+        onClose={() => setSelectedCategory(null)}
+      />
     </section>
   )
 }
 
-function BudgetRing({ category }: { category: CategoryBudgetStatus }) {
+function BudgetRing({ category, onClick }: { category: CategoryBudgetStatus; onClick: () => void }) {
   const style = STATUS_STYLES[category.status]
   const usageRate = Math.max(0, Math.min(category.spent / category.budget, 1))
   const dashOffset = CIRCUMFERENCE * (1 - usageRate)
@@ -94,10 +110,14 @@ function BudgetRing({ category }: { category: CategoryBudgetStatus }) {
   const accessibleLabel = `${category.categoryName}预算，${stateLabel}${amountText}，已花${formatMoney(category.spent)}，总预算${formatMoney(category.budget)}`
 
   return (
-    <article className="min-w-0 rounded-xl bg-white px-1.5 py-3 shadow-sm shadow-gray-100/80">
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={`查看${category.categoryName}本月支出明细`}
+      className="min-w-0 rounded-xl bg-white px-1.5 py-3 text-left shadow-sm shadow-gray-100/80 transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+    >
       <div
-        role="img"
-        aria-label={accessibleLabel}
+        title={accessibleLabel}
         className={`relative mx-auto aspect-square w-full max-w-[94px] ${isExhausted || isOverspent ? 'rounded-full ring-2 ring-red-100' : ''}`}
       >
         <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90" aria-hidden="true">
@@ -137,6 +157,6 @@ function BudgetRing({ category }: { category: CategoryBudgetStatus }) {
         <p className="truncate tabular-nums">已花 {formatMoney(category.spent)}</p>
         <p className="truncate tabular-nums">预算 {formatMoney(category.budget)}</p>
       </div>
-    </article>
+    </button>
   )
 }
