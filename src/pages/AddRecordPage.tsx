@@ -6,7 +6,7 @@ import { useAppStore } from '../stores/appStore'
 import { createRecord, createRecordsFromParsed } from '../services/record/recordService'
 import { parseNaturalLanguageRecord } from '../services/ai/parseRecord'
 import { getToday } from '../utils/date'
-import type { BudgetCategory, MonthlyBudget, ParsedRecordItem, Tag } from '../types'
+import type { BudgetCategory, MonthlyBudget, ParsedRecordItem, RecordItem, Tag } from '../types'
 import ManualForm from '../components/record/ManualForm'
 import AiInputBox from '../components/record/AiInputBox'
 import AiParseResultList from '../components/record/AiParseResultList'
@@ -15,6 +15,7 @@ import EmptyState from '../components/common/EmptyState'
 import Toast from '../components/common/Toast'
 import { useToast } from '../hooks/useToast'
 import ConfirmDialog from '../components/common/ConfirmDialog'
+import RecentlyAddedList from '../components/record/RecentlyAddedList'
 
 export default function AddRecordPage() {
   const navigate = useNavigate()
@@ -24,6 +25,7 @@ export default function AddRecordPage() {
   const [monthlyBudget, setMonthlyBudget] = useState<MonthlyBudget | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [recentRecords, setRecentRecords] = useState<RecordItem[]>([])
   const loadRecords = useRecordStore((s) => s.loadRecordsByMonth)
   const { toast, showToast } = useToast()
 
@@ -116,7 +118,10 @@ export default function AddRecordPage() {
 
     try {
       const records = await createRecordsFromParsed(parsedItems)
+      const refreshedTags = await db.tags.filter((tag) => !tag.archived).toArray()
       showToast('success', `已保存 ${records.length} 条账单`)
+      setRecentRecords((current) => [...records, ...current])
+      setTags(refreshedTags)
       setParsedItems([])
       setAiInput('')
       setAiFocusRequestKey((key) => key + 1)
@@ -133,7 +138,7 @@ export default function AddRecordPage() {
     async (data: ManualRecordFormValues) => {
       setSaving(true)
       try {
-        await createRecord({
+        const record = await createRecord({
           title: data.title,
           amount: data.amount,
           budgetCategoryId: data.type === 'income' ? 'income' : data.budgetCategoryId,
@@ -143,6 +148,7 @@ export default function AddRecordPage() {
           note: data.note || undefined,
           source: 'manual',
         })
+        setRecentRecords((current) => [record, ...current])
         showToast('success', '已保存')
         const month = data.date.slice(0, 7)
         loadRecords(month)
@@ -254,6 +260,13 @@ export default function AddRecordPage() {
           <ManualForm categories={categories} tags={tags} onSave={handleManualSave} saving={saving} />
         </div>
       )}
+
+      <RecentlyAddedList
+        records={recentRecords}
+        categories={categories}
+        tags={tags}
+        onViewAll={() => navigate('/records')}
+      />
 
       <ConfirmDialog
         open={confirmingReparse}
