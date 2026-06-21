@@ -59,7 +59,11 @@ export async function parseNaturalLanguageRecord(
     }
   }
 
-  const items = normalizeParsedItems(jsonData, categories, tags)
+  const originalInput = input.trim()
+  const items = normalizeParsedItems(jsonData, categories, tags).map((item) => ({
+    ...item,
+    rawText: originalInput,
+  }))
 
   if (items.length === 0) {
     return {

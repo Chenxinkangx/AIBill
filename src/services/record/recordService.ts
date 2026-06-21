@@ -55,6 +55,7 @@ export async function createRecordsFromParsed(items: ParsedRecordItem[]): Promis
       tagIds: item.tagNames.map((name) => tagMap.get(name)).filter((id): id is string => Boolean(id)),
       type: item.type,
       date: item.date,
+      note: item.rawText?.trim() || undefined,
       source: 'ai',
       createdAt: now,
       updatedAt: now,

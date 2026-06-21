@@ -153,6 +153,20 @@ export default function AiParseResultList({
                 </div>
               )}
             </div>
+            {item.rawText && (
+              <div>
+                <div className="mb-1.5">
+                  <label htmlFor={`ai-record-note-${index}`} className="text-xs text-gray-500">备注</label>
+                </div>
+                <textarea
+                  id={`ai-record-note-${index}`}
+                  value={item.rawText}
+                  onChange={(event) => onUpdate(index, 'rawText', event.target.value)}
+                  rows={2}
+                  className="w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm leading-5 text-gray-700 outline-none transition-colors focus:border-indigo-400 focus:bg-white"
+                />
+              </div>
+            )}
           </div>
           )
         })}
