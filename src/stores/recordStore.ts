@@ -65,7 +65,7 @@ export const useRecordStore = create<RecordState>((set) => ({
     const now = new Date().toISOString()
     const nextPartial =
       partial.type === 'income'
-        ? { ...partial, categoryId: 'income' }
+        ? { ...partial, budgetCategoryId: 'income' }
         : partial
     set((state) => ({
       records: state.records.map((r) =>

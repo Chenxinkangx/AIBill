@@ -6,7 +6,7 @@ import { useAppStore } from '../stores/appStore'
 import { createRecord, createRecordsFromParsed } from '../services/record/recordService'
 import { parseNaturalLanguageRecord } from '../services/ai/parseRecord'
 import { getToday } from '../utils/date'
-import type { Category, MonthlyBudget, ParsedRecordItem } from '../types'
+import type { BudgetCategory, MonthlyBudget, ParsedRecordItem, Tag } from '../types'
 import ManualForm from '../components/record/ManualForm'
 import AiInputBox from '../components/record/AiInputBox'
 import AiParseResultList from '../components/record/AiParseResultList'
@@ -18,7 +18,8 @@ import { useToast } from '../hooks/useToast'
 export default function AddRecordPage() {
   const navigate = useNavigate()
   const currentMonth = useAppStore((s) => s.currentMonth)
-  const [categories, setCategories] = useState<Category[]>([])
+  const [categories, setCategories] = useState<BudgetCategory[]>([])
+  const [tags, setTags] = useState<Tag[]>([])
   const [monthlyBudget, setMonthlyBudget] = useState<MonthlyBudget | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -41,10 +42,12 @@ export default function AddRecordPage() {
         .filter((c) => (c.budgetable || c.id === 'income') && !c.archived)
         .toArray(),
       db.monthlyBudgets.get({ month: currentMonth }),
+      db.tags.filter((tag) => !tag.archived).toArray(),
     ])
-      .then(([cats, budget]) => {
+      .then(([cats, budget, loadedTags]) => {
         setCategories(cats)
         setMonthlyBudget(budget ?? null)
+        setTags(loadedTags)
       })
       .finally(() => setLoading(false))
   }, [currentMonth])
@@ -56,7 +59,7 @@ export default function AddRecordPage() {
     setAiError(null)
     setParsedItems([])
 
-    const result = await parseNaturalLanguageRecord(aiInput, categories, getToday())
+    const result = await parseNaturalLanguageRecord(aiInput, categories, getToday(), tags)
 
     if (result.error) {
       setAiError(result.error)
@@ -70,7 +73,7 @@ export default function AddRecordPage() {
     setParsedItems((prev) => prev.filter((_, i) => i !== index))
   }
 
-  const handleUpdateParsedItem = (index: number, field: keyof ParsedRecordItem, value: string | number) => {
+  const handleUpdateParsedItem = (index: number, field: keyof ParsedRecordItem, value: string | number | string[]) => {
     setParsedItems((prev) =>
       prev.map((item, i) =>
         i === index ? { ...item, [field]: value } : item
@@ -86,7 +89,7 @@ export default function AddRecordPage() {
         !item.amount ||
         item.amount <= 0 ||
         !item.date ||
-        (item.type === 'expense' && (!item.categoryId || item.categoryId === 'income'))
+        (item.type === 'expense' && (!item.budgetCategoryId || item.budgetCategoryId === 'income'))
     )
     if (hasInvalidItem) {
       showToast('error', '请检查识别结果中的金额、分类和日期')
@@ -116,7 +119,8 @@ export default function AddRecordPage() {
         await createRecord({
           title: data.title,
           amount: data.amount,
-          categoryId: data.type === 'income' ? 'income' : data.categoryId,
+          budgetCategoryId: data.type === 'income' ? 'income' : data.budgetCategoryId,
+          tagIds: data.tagIds,
           type: data.type,
           date: data.date,
           note: data.note || undefined,
@@ -215,6 +219,7 @@ export default function AddRecordPage() {
           <AiParseResultList
             items={parsedItems}
             categories={categories}
+            tags={tags}
             onUpdate={handleUpdateParsedItem}
             onRemove={handleRemoveParsedItem}
             onConfirm={handleConfirmAi}
@@ -227,7 +232,7 @@ export default function AddRecordPage() {
       {mode === 'manual' && (
         <div className="space-y-4">
           <p className="text-sm text-gray-400">逐条记录每一笔消费</p>
-          <ManualForm categories={categories} onSave={handleManualSave} saving={saving} />
+          <ManualForm categories={categories} tags={tags} onSave={handleManualSave} saving={saving} />
         </div>
       )}
 

@@ -41,7 +41,7 @@ export default function CategoryProgressList({ categoryStatuses }: Props) {
 
           return (
             <div
-              key={cat.categoryId}
+              key={cat.budgetCategoryId}
               className="bg-white rounded-2xl px-4 py-3.5 space-y-2 shadow-sm shadow-gray-100/80"
             >
               <div className="flex items-center justify-between">

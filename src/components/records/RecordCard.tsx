@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import type { PointerEvent } from 'react'
-import type { RecordItem, Category } from '../../types'
+import type { RecordItem, BudgetCategory, Tag } from '../../types'
 import { formatMoney } from '../../utils/money'
 import RecordActions from './RecordActions'
 import ConfirmDialog from '../common/ConfirmDialog'
@@ -9,12 +9,13 @@ import { deleteRecord } from '../../services/record/recordService'
 interface Props {
   record: RecordItem
   categoryName: string
-  categories: Category[]
+  categories: BudgetCategory[]
+  tags: Tag[]
   onUpdated: () => void
   onDeleted: () => void
 }
 
-export default function RecordCard({ record, categoryName, categories, onUpdated, onDeleted }: Props) {
+export default function RecordCard({ record, categoryName, categories, tags, onUpdated, onDeleted }: Props) {
   const [expanded, setExpanded] = useState(false)
   const [swipeOpen, setSwipeOpen] = useState(false)
   const [dragX, setDragX] = useState(0)
@@ -27,6 +28,9 @@ export default function RecordCard({ record, categoryName, categories, onUpdated
 
   const createdTime = formatRecordTime(record.createdAt)
   const updatedTime = formatRecordTime(record.updatedAt)
+  const recordTags = record.tagIds
+    .map((id) => tags.find((tag) => tag.id === id))
+    .filter((tag): tag is Tag => Boolean(tag))
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     startX.current = event.clientX
@@ -148,7 +152,7 @@ export default function RecordCard({ record, categoryName, categories, onUpdated
           >
             <div className="grid grid-cols-2 gap-2">
               <Detail label="类型" value={record.type === 'income' ? '收入' : '支出'} />
-              <Detail label="分类" value={categoryName} />
+              <Detail label="预算分类" value={categoryName} />
               <Detail label="日期" value={record.date} />
               {createdTime && <Detail label="创建时间" value={createdTime} />}
               {updatedTime && updatedTime !== createdTime && (
@@ -161,10 +165,24 @@ export default function RecordCard({ record, categoryName, categories, onUpdated
                 <p className="mt-1 text-gray-700">{record.note}</p>
               </div>
             )}
+            {recordTags.length > 0 && (
+              <div>
+                <span className="text-gray-400">标签</span>
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {recordTags.map((tag) => (
+                    <span key={tag.id} className="rounded-full bg-white px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-gray-200">
+                      <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full" style={{ backgroundColor: tag.color }} />
+                      {tag.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
             {deleteError && <p className="text-red-500">{deleteError}</p>}
             <RecordActions
               record={record}
               categories={categories}
+              tags={tags}
               onUpdated={onUpdated}
               onDeleted={onDeleted}
               showDeleteAction={false}

@@ -6,7 +6,7 @@ import { useSettingsStore } from '../stores/settingsStore'
 import { getBudgetStatus, getBudgetSummary } from '../services/budget/calculator'
 import { getRecordsByMonth } from '../services/record/recordService'
 import { getMonthProgress, getToday, isCurrentMonth } from '../utils/date'
-import type { Category, MonthlyBudget, CategoryBudget, RecordItem } from '../types'
+import type { BudgetCategory, MonthlyBudget, CategoryBudget, RecordItem } from '../types'
 import { generateId } from '../utils/id'
 import { sumMoney } from '../utils/money'
 import MonthPicker from '../components/common/MonthPicker'
@@ -23,7 +23,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [monthlyBudget, setMonthlyBudget] = useState<MonthlyBudget | null>(null)
   const [categoryBudgets, setCategoryBudgets] = useState<CategoryBudget[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
+  const [categories, setCategories] = useState<BudgetCategory[]>([])
   const [records, setRecords] = useState<RecordItem[]>([])
 
   const loadData = useCallback(async () => {
@@ -88,7 +88,7 @@ export default function DashboardPage() {
     const newCategoryBudgets: CategoryBudget[] = previousCategoryBudgets.map((budget) => ({
       id: generateId(),
       month: currentMonth,
-      categoryId: budget.categoryId,
+      budgetCategoryId: budget.budgetCategoryId,
       amount: budget.amount,
       createdAt: now,
       updatedAt: now,

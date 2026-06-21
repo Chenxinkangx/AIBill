@@ -5,7 +5,7 @@ import { getBudgetAllocationDiff, getCategoryBudgetStatuses } from '../services/
 import { getRecordsByMonth } from '../services/record/recordService'
 import { getToday } from '../utils/date'
 import { formatMoney, sumMoney } from '../utils/money'
-import type { Category, MonthlyBudget, CategoryBudget, RecordItem } from '../types'
+import type { BudgetCategory, MonthlyBudget, CategoryBudget, RecordItem } from '../types'
 import MonthPicker from '../components/common/MonthPicker'
 import TotalBudgetInput from '../components/budget/TotalBudgetInput'
 import CategoryBudgetRow from '../components/budget/CategoryBudgetRow'
@@ -26,13 +26,13 @@ export default function BudgetPage() {
   const [loading, setLoading] = useState(true)
   const [monthlyBudget, setMonthlyBudget] = useState<MonthlyBudget | null>(null)
   const [categoryBudgets, setCategoryBudgets] = useState<CategoryBudget[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
-  const [archivedCategories, setArchivedCategories] = useState<Category[]>([])
+  const [categories, setCategories] = useState<BudgetCategory[]>([])
+  const [archivedCategories, setArchivedCategories] = useState<BudgetCategory[]>([])
   const [records, setRecords] = useState<RecordItem[]>([])
   const [saving, setSaving] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState('')
-  const [archiveTarget, setArchiveTarget] = useState<Category | null>(null)
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null)
+  const [archiveTarget, setArchiveTarget] = useState<BudgetCategory | null>(null)
+  const [editingCategory, setEditingCategory] = useState<BudgetCategory | null>(null)
   const [editingCategoryName, setEditingCategoryName] = useState('')
   const { toast, showToast } = useToast()
 
@@ -96,7 +96,7 @@ export default function BudgetPage() {
     const nextAmount = Math.max(0, amount || 0)
     try {
       const now = new Date().toISOString()
-      const existing = categoryBudgets.find((cb) => cb.categoryId === categoryId)
+      const existing = categoryBudgets.find((cb) => cb.budgetCategoryId === categoryId)
 
       if (existing) {
         await db.categoryBudgets.update(existing.id, { amount: nextAmount, updatedAt: now })
@@ -106,7 +106,7 @@ export default function BudgetPage() {
       } else {
         const newCB: CategoryBudget = {
           id: generateId(),
-          categoryId,
+          budgetCategoryId: categoryId,
           month: currentMonth,
           amount: nextAmount,
           createdAt: now,
@@ -125,7 +125,7 @@ export default function BudgetPage() {
       const category = await createCategory(newCategoryName)
       setCategories((prev) => [...prev, category].sort((a, b) => a.order - b.order))
       setNewCategoryName('')
-      showToast('success', '分类已添加')
+      showToast('success', '预算分类已添加')
     } catch (err) {
       showToast('error', err instanceof Error ? err.message : '添加分类失败')
     }
@@ -140,13 +140,13 @@ export default function BudgetPage() {
         [...prev, { ...archiveTarget, archived: true }].sort((a, b) => a.order - b.order)
       )
       setArchiveTarget(null)
-      showToast('success', '分类已归档')
+      showToast('success', '预算分类已归档')
     } catch (err) {
       showToast('error', err instanceof Error ? err.message : '归档失败')
     }
   }
 
-  const startRenameCategory = (category: Category) => {
+  const startRenameCategory = (category: BudgetCategory) => {
     setEditingCategory(category)
     setEditingCategoryName(category.name)
   }
@@ -162,20 +162,20 @@ export default function BudgetPage() {
       )
       setEditingCategory(null)
       setEditingCategoryName('')
-      showToast('success', '分类已更新')
+      showToast('success', '预算分类已更新')
     } catch (err) {
       showToast('error', err instanceof Error ? err.message : '更新分类失败')
     }
   }
 
-  const handleRestoreCategory = async (category: Category) => {
+  const handleRestoreCategory = async (category: BudgetCategory) => {
     try {
       await restoreCategory(category.id)
       setArchivedCategories((prev) => prev.filter((cat) => cat.id !== category.id))
       setCategories((prev) =>
         [...prev, { ...category, archived: false }].sort((a, b) => a.order - b.order)
       )
-      showToast('success', '分类已恢复')
+      showToast('success', '预算分类已恢复')
     } catch (err) {
       showToast('error', err instanceof Error ? err.message : '恢复分类失败')
     }
@@ -260,8 +260,8 @@ export default function BudgetPage() {
       <div className="space-y-3">
         <h2 className="text-sm font-medium text-gray-500 px-1">分类预算</h2>
         {categories.map((cat) => {
-          const cb = categoryBudgets.find((b) => b.categoryId === cat.id)
-          const status = categoryStatuses.find((s) => s.categoryId === cat.id)
+          const cb = categoryBudgets.find((b) => b.budgetCategoryId === cat.id)
+          const status = categoryStatuses.find((s) => s.budgetCategoryId === cat.id)
           const budget = cb?.amount ?? 0
           return (
             <CategoryBudgetRow
@@ -279,12 +279,12 @@ export default function BudgetPage() {
           )
         })}
         <div className="bg-white rounded-xl p-4 space-y-2">
-          <h3 className="text-sm font-medium text-gray-700">添加分类</h3>
+          <h3 className="text-sm font-medium text-gray-700">添加预算分类</h3>
           <div className="flex gap-2">
             <input
               value={newCategoryName}
               onChange={(e) => setNewCategoryName(e.target.value)}
-              placeholder="分类名称"
+              placeholder="预算分类名称"
               className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-indigo-400"
             />
             <button
@@ -300,7 +300,7 @@ export default function BudgetPage() {
 
       {archivedCategories.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-sm font-medium text-gray-500 px-1">已归档分类</h2>
+          <h2 className="text-sm font-medium text-gray-500 px-1">已归档预算分类</h2>
           <div className="bg-white rounded-xl divide-y divide-gray-50">
             {archivedCategories.map((cat) => (
               <div key={cat.id} className="flex items-center justify-between px-4 py-3">

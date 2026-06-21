@@ -2,16 +2,18 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { manualRecordSchema, type ManualRecordFormValues } from '../../services/record/validation'
-import type { Category } from '../../types'
+import type { BudgetCategory, Tag } from '../../types'
 import { getToday } from '../../utils/date'
+import TagSelector from '../common/TagSelector'
 
 interface Props {
-  categories: Category[]
+  categories: BudgetCategory[]
+  tags: Tag[]
   onSave: (data: ManualRecordFormValues) => Promise<void>
   saving: boolean
 }
 
-export default function ManualForm({ categories, onSave, saving }: Props) {
+export default function ManualForm({ categories, tags, onSave, saving }: Props) {
   const {
     register,
     handleSubmit,
@@ -24,7 +26,8 @@ export default function ManualForm({ categories, onSave, saving }: Props) {
     defaultValues: {
       title: '',
       amount: undefined,
-      categoryId: '',
+      budgetCategoryId: '',
+      tagIds: [],
       type: 'expense',
       date: getToday(),
       note: '',
@@ -32,21 +35,22 @@ export default function ManualForm({ categories, onSave, saving }: Props) {
   })
 
   const recordType = watch('type')
-  const categoryId = watch('categoryId')
+  const budgetCategoryId = watch('budgetCategoryId')
+  const tagIds = watch('tagIds')
 
   useEffect(() => {
-    if (recordType === 'income' && categoryId !== 'income') {
-      setValue('categoryId', 'income', { shouldValidate: true })
+    if (recordType === 'income' && budgetCategoryId !== 'income') {
+      setValue('budgetCategoryId', 'income', { shouldValidate: true })
     }
-    if (recordType === 'expense' && categoryId === 'income') {
-      setValue('categoryId', '', { shouldValidate: true })
+    if (recordType === 'expense' && budgetCategoryId === 'income') {
+      setValue('budgetCategoryId', '', { shouldValidate: true })
     }
-  }, [categoryId, recordType, setValue])
+  }, [budgetCategoryId, recordType, setValue])
 
   const onSubmit = async (data: ManualRecordFormValues) => {
     await onSave({
       ...data,
-      categoryId: data.type === 'income' ? 'income' : data.categoryId,
+      budgetCategoryId: data.type === 'income' ? 'income' : data.budgetCategoryId,
     })
     reset()
   }
@@ -96,12 +100,12 @@ export default function ManualForm({ categories, onSave, saving }: Props) {
       {/* Category + Date row */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm font-medium text-gray-600 mb-1">分类</label>
+        <label className="block text-sm font-medium text-gray-600 mb-1">预算分类</label>
           <select
-            {...register('categoryId')}
+            {...register('budgetCategoryId')}
             className="w-full min-w-0 px-4 py-3 rounded-2xl border border-gray-200 text-base outline-none focus:border-indigo-400 transition-colors bg-white"
           >
-            <option value="">选择分类</option>
+            <option value="">从哪个预算扣？</option>
             {categories
               .filter((cat) =>
                 recordType === 'income' ? cat.id === 'income' : cat.budgetable
@@ -112,8 +116,8 @@ export default function ManualForm({ categories, onSave, saving }: Props) {
                 </option>
               ))}
           </select>
-          {errors.categoryId && (
-            <p className="text-red-500 text-xs mt-1">{errors.categoryId.message}</p>
+          {errors.budgetCategoryId && (
+            <p className="text-red-500 text-xs mt-1">{errors.budgetCategoryId.message}</p>
           )}
         </div>
         <div>
@@ -127,6 +131,18 @@ export default function ManualForm({ categories, onSave, saving }: Props) {
             <p className="text-red-500 text-xs mt-1">{errors.date.message}</p>
           )}
         </div>
+      </div>
+
+      <div>
+        <div className="mb-2 flex items-center justify-between">
+          <label className="text-sm font-medium text-gray-600">标签（可选）</label>
+          <span className="text-xs text-gray-400">用于筛选，不扣预算</span>
+        </div>
+        <TagSelector
+          tags={tags}
+          selectedIds={tagIds}
+          onChange={(ids) => setValue('tagIds', ids, { shouldDirty: true })}
+        />
       </div>
 
       {/* Note */}

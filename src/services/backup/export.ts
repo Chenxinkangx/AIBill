@@ -1,16 +1,17 @@
 import { db } from '../../db/index'
 import type { ExportData } from '../../types'
 
-const APP_VERSION = '1.0.0'
+const APP_VERSION = '2.0.0'
 
 /**
  * 导出全部数据为 ExportData 格式
  * 注意：不包含 API Key（存在 localStorage 中）
  */
 export async function exportData(): Promise<ExportData> {
-  const [categories, monthlyBudgets, categoryBudgets, records, settings] =
+  const [budgetCategories, tags, monthlyBudgets, categoryBudgets, records, settings] =
     await Promise.all([
       db.categories.toArray(),
+      db.tags.toArray(),
       db.monthlyBudgets.toArray(),
       db.categoryBudgets.toArray(),
       db.records.toArray(),
@@ -22,7 +23,8 @@ export async function exportData(): Promise<ExportData> {
     version: APP_VERSION,
     exportedAt: new Date().toISOString(),
     data: {
-      categories,
+      budgetCategories,
+      tags,
       monthlyBudgets,
       categoryBudgets,
       records,

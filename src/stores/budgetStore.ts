@@ -65,7 +65,7 @@ export const useBudgetStore = create<BudgetState>((set) => ({
   saveCategoryBudget: async (categoryId: string, month: string, amount: number) => {
     const now = new Date().toISOString()
     const existing = await db.categoryBudgets
-      .where({ month, categoryId })
+      .where({ month, budgetCategoryId: categoryId })
       .first()
 
     if (existing) {
@@ -73,7 +73,7 @@ export const useBudgetStore = create<BudgetState>((set) => ({
     } else {
       await db.categoryBudgets.add({
         id: generateId(),
-        categoryId,
+        budgetCategoryId: categoryId,
         month,
         amount,
         createdAt: now,

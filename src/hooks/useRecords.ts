@@ -1,32 +1,40 @@
 import { useEffect, useState, useCallback } from 'react'
-import type { RecordItem, Category } from '../types'
+import type { RecordItem, BudgetCategory, Tag } from '../types'
 import { getRecordsByMonth } from '../services/record/recordService'
 import { db } from '../db/index'
 
-export function useRecords(month: string, categoryFilters: string[] = []) {
+export function useRecords(month: string, categoryFilters: string[] = [], tagFilters: string[] = []) {
   const [records, setRecords] = useState<RecordItem[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
+  const [categories, setCategories] = useState<BudgetCategory[]>([])
+  const [tags, setTags] = useState<Tag[]>([])
   const [loading, setLoading] = useState(true)
   const normalizedFilters = categoryFilters.join('|')
+  const normalizedTagFilters = tagFilters.join('|')
 
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const [data, cats] = await Promise.all([
+      const [data, cats, loadedTags] = await Promise.all([
         getRecordsByMonth(month),
         db.categories.toArray(),
+        db.tags.toArray(),
       ])
       const selected = new Set(categoryFilters)
       const filtered =
         selected.size === 0
           ? data
-          : data.filter((record) => selected.has(record.categoryId))
-      setRecords(sortRecordsByDateTime(filtered))
+          : data.filter((record) => selected.has(record.budgetCategoryId))
+      const selectedTags = new Set(tagFilters)
+      const tagFiltered = selectedTags.size === 0
+        ? filtered
+        : filtered.filter((record) => record.tagIds.some((id) => selectedTags.has(id)))
+      setRecords(sortRecordsByDateTime(tagFiltered))
       setCategories(cats)
+      setTags(loadedTags)
     } finally {
       setLoading(false)
     }
-  }, [month, normalizedFilters])
+  }, [month, normalizedFilters, normalizedTagFilters])
 
   useEffect(() => {
     load()
@@ -63,6 +71,7 @@ export function useRecords(month: string, categoryFilters: string[] = []) {
     groupedRecords,
     sortedDates,
     categories,
+    tags,
     loading,
     refresh,
     getCategoryName,

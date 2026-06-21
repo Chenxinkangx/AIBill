@@ -1,13 +1,15 @@
-import type { ParsedRecordItem, Category } from '../../types'
+import type { ParsedRecordItem, BudgetCategory, Tag } from '../../types'
 import { getToday } from '../../utils/date'
 import { isValidDateString } from '../../utils/validation'
+import { normalizeTagNames } from '../tag/tagRules'
 
 /**
  * 校验并规范化 AI 返回的解析结果
  */
 export function normalizeParsedItems(
   raw: unknown[],
-  categories: Category[]
+  categories: BudgetCategory[],
+  tags: Tag[] = []
 ): ParsedRecordItem[] {
   if (!Array.isArray(raw) || raw.length === 0) return []
 
@@ -26,23 +28,23 @@ export function normalizeParsedItems(
       const type = item.type === 'income' ? 'income' : 'expense'
 
       // Match category
-      let categoryName = String(item.categoryName ?? '').trim()
-      let categoryId: string | undefined
+      let budgetCategoryName = String(item.budgetCategoryName ?? item.categoryName ?? '').trim()
+      let budgetCategoryId: string | undefined
 
       if (type === 'income') {
-        categoryName = '收入'
-        categoryId = 'income'
+        budgetCategoryName = '收入'
+        budgetCategoryId = 'income'
       } else {
         const matched = categories.find(
-          (c) => c.name === categoryName || c.id === categoryName
+          (c) => c.name === budgetCategoryName || c.id === budgetCategoryName
         )
         if (matched) {
-          categoryId = matched.id
+          budgetCategoryId = matched.id
         } else {
           // Fallback to "其他"
-          categoryName = '其他'
+          budgetCategoryName = '其他'
           const other = categories.find((c) => c.name === '其他')
-          categoryId = other?.id ?? 'cat-other'
+          budgetCategoryId = other?.id ?? 'cat-other'
         }
       }
 
@@ -53,12 +55,20 @@ export function normalizeParsedItems(
       }
 
       const confidence = typeof item.confidence === 'number' ? item.confidence : 0.5
+      const requestedTagNames = Array.isArray(item.tagNames) ? item.tagNames : []
+      const existingNames = new Map(
+        tags.filter((tag) => !tag.archived).map((tag) => [tag.name.toLocaleLowerCase(), tag.name])
+      )
+      const tagNames = normalizeTagNames(requestedTagNames).map(
+        (name) => existingNames.get(name.toLocaleLowerCase()) ?? name
+      )
 
       return {
         title: String(item.title ?? '').trim() || '未命名',
         amount,
-        categoryId,
-        categoryName,
+        budgetCategoryId,
+        budgetCategoryName,
+        tagNames,
         type,
         date,
         confidence: Math.max(0, Math.min(1, confidence)),

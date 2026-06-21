@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import ConfirmDialog from '../common/ConfirmDialog'
 import { updateRecord, deleteRecord } from '../../services/record/recordService'
-import type { RecordItem, Category } from '../../types'
+import type { RecordItem, BudgetCategory, Tag } from '../../types'
+import TagSelector from '../common/TagSelector'
 
 interface Props {
   record: RecordItem
-  categories: Category[]
+  categories: BudgetCategory[]
+  tags: Tag[]
   onUpdated: () => void
   onDeleted: () => void
   showDeleteAction?: boolean
@@ -14,6 +16,7 @@ interface Props {
 export default function RecordActions({
   record,
   categories,
+  tags,
   onUpdated,
   onDeleted,
   showDeleteAction = true,
@@ -25,7 +28,8 @@ export default function RecordActions({
     title: record.title,
     amount: record.amount,
     type: record.type,
-    categoryId: record.categoryId,
+    budgetCategoryId: record.budgetCategoryId,
+    tagIds: record.tagIds,
     date: record.date,
     note: record.note ?? '',
   })
@@ -44,9 +48,9 @@ export default function RecordActions({
       setError('请选择日期')
       return
     }
-    const categoryId = form.type === 'income' ? 'income' : form.categoryId
-    if (form.type === 'expense' && (!categoryId || categoryId === 'income')) {
-      setError('请选择支出分类')
+    const budgetCategoryId = form.type === 'income' ? 'income' : form.budgetCategoryId
+    if (form.type === 'expense' && (!budgetCategoryId || budgetCategoryId === 'income')) {
+      setError('请选择预算分类')
       return
     }
     setSaving(true)
@@ -55,7 +59,7 @@ export default function RecordActions({
       await updateRecord(record.id, {
         ...form,
         title: form.title.trim(),
-        categoryId,
+        budgetCategoryId,
       })
       setEditing(false)
       onUpdated()
@@ -102,7 +106,7 @@ export default function RecordActions({
                 type === 'income'
                   ? 'income'
                   : categories.find((c) => c.budgetable && c.id !== 'income')?.id ?? ''
-              setForm({ ...form, type, categoryId: nextCategory })
+              setForm({ ...form, type, budgetCategoryId: nextCategory })
             }}
             className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-indigo-400 bg-white"
           >
@@ -112,15 +116,15 @@ export default function RecordActions({
         </div>
         <div className="grid grid-cols-2 gap-2">
           <select
-            value={form.categoryId}
-            onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
+            value={form.budgetCategoryId}
+            onChange={(e) => setForm({ ...form, budgetCategoryId: e.target.value })}
             className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-indigo-400 bg-white"
           >
             {categories
               .filter((c) =>
                 form.type === 'income'
                   ? c.id === 'income'
-                  : (c.budgetable && !c.archived) || c.id === record.categoryId
+                  : (c.budgetable && !c.archived) || c.id === record.budgetCategoryId
               )
               .map((cat) => (
                 <option key={cat.id} value={cat.id}>
@@ -133,6 +137,15 @@ export default function RecordActions({
             value={form.date}
             onChange={(e) => setForm({ ...form, date: e.target.value })}
             className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-indigo-400"
+          />
+        </div>
+        <div>
+          <p className="mb-2 text-xs text-gray-400">标签（可选，不扣预算）</p>
+          <TagSelector
+            tags={tags}
+            compact
+            selectedIds={form.tagIds}
+            onChange={(tagIds) => setForm({ ...form, tagIds })}
           />
         </div>
         <input

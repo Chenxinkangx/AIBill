@@ -1,4 +1,4 @@
-import type { RecordItem, Category } from '../../types'
+import type { RecordItem, BudgetCategory, Tag } from '../../types'
 import RecordCard from './RecordCard'
 import { sumMoney } from '../../utils/money'
 
@@ -6,7 +6,8 @@ interface Props {
   date: string
   records: RecordItem[]
   getCategoryName: (id: string) => string
-  categories: Category[]
+  categories: BudgetCategory[]
+  tags: Tag[]
   onUpdated: () => void
   onDeleted: () => void
 }
@@ -16,6 +17,7 @@ export default function RecordGroup({
   records,
   getCategoryName,
   categories,
+  tags,
   onUpdated,
   onDeleted,
 }: Props) {
@@ -67,8 +69,9 @@ export default function RecordGroup({
         <RecordCard
           key={record.id}
           record={record}
-          categoryName={getCategoryName(record.categoryId)}
+          categoryName={getCategoryName(record.budgetCategoryId)}
           categories={categories}
+          tags={tags}
           onUpdated={onUpdated}
           onDeleted={onDeleted}
         />

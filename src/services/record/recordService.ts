@@ -1,6 +1,7 @@
 import { db } from '../../db/index'
 import { generateId } from '../../utils/id'
 import type { ParsedRecordItem, RecordItem } from '../../types'
+import { getOrCreateTagsByNames, validateTagIds } from '../tag/tagService'
 
 export function normalizeRecordInput(
   data: Omit<RecordItem, 'id' | 'createdAt' | 'updatedAt'>
@@ -13,7 +14,7 @@ export function normalizeRecordInput(
     ...data,
     title: data.title.trim(),
     amount: data.amount,
-    categoryId: data.type === 'income' ? 'income' : data.categoryId,
+    budgetCategoryId: data.type === 'income' ? 'income' : data.budgetCategoryId,
   }
 }
 
@@ -22,8 +23,10 @@ export async function createRecord(
 ): Promise<RecordItem> {
   const now = new Date().toISOString()
   const normalized = normalizeRecordInput(data)
+  const tagIds = await validateTagIds(normalized.tagIds)
   const record: RecordItem = {
     ...normalized,
+    tagIds,
     id: generateId(),
     createdAt: now,
     updatedAt: now,
@@ -34,24 +37,31 @@ export async function createRecord(
 
 export async function createRecordsFromParsed(items: ParsedRecordItem[]): Promise<RecordItem[]> {
   const now = new Date().toISOString()
-  const records: RecordItem[] = items.map((item) => ({
-    id: generateId(),
-    title: item.title.trim() || '未命名',
-    amount: item.amount,
-    categoryId: item.type === 'income' ? 'income' : item.categoryId ?? 'cat-other',
-    type: item.type,
-    date: item.date,
-    source: 'ai',
-    createdAt: now,
-    updatedAt: now,
-  }))
-
-  if (records.some((record) => !Number.isFinite(record.amount) || record.amount <= 0)) {
+  if (items.some((item) => !Number.isFinite(item.amount) || item.amount <= 0)) {
     throw new Error('金额必须大于 0')
   }
 
-  await db.records.bulkAdd(records)
-  return records
+  return db.transaction('rw', db.tags, db.records, async () => {
+    const tagMap = new Map<string, string>()
+    const allNames = [...new Set(items.flatMap((item) => item.tagNames))]
+    const resolvedTags = await getOrCreateTagsByNames(allNames)
+    resolvedTags.forEach((tag) => tagMap.set(tag.name, tag.id))
+
+    const records: RecordItem[] = items.map((item) => ({
+      id: generateId(),
+      title: item.title.trim() || '未命名',
+      amount: item.amount,
+      budgetCategoryId: item.type === 'income' ? 'income' : item.budgetCategoryId ?? 'cat-other',
+      tagIds: item.tagNames.map((name) => tagMap.get(name)).filter((id): id is string => Boolean(id)),
+      type: item.type,
+      date: item.date,
+      source: 'ai',
+      createdAt: now,
+      updatedAt: now,
+    }))
+    await db.records.bulkAdd(records)
+    return records
+  })
 }
 
 export async function updateRecord(
@@ -61,8 +71,9 @@ export async function updateRecord(
   const now = new Date().toISOString()
   const next =
     partial.type === 'income'
-      ? { ...partial, categoryId: 'income' }
+      ? { ...partial, budgetCategoryId: 'income' }
       : partial
+  if (next.tagIds) next.tagIds = await validateTagIds(next.tagIds)
   await db.records.update(id, { ...next, updatedAt: now })
 }
 
@@ -84,20 +95,20 @@ export async function getRecordsByMonth(month: string): Promise<RecordItem[]> {
 
 export async function getRecordsByMonthAndCategory(
   month: string,
-  categoryId: string
+  budgetCategoryId: string
 ): Promise<RecordItem[]> {
   const [year, monthNum] = month.split('-')
   const startDate = `${year}-${monthNum}-01`
   const lastDay = new Date(Number(year), Number(monthNum), 0).getDate()
   const endDate = `${year}-${monthNum}-${String(lastDay).padStart(2, '0')}`
 
-  if (categoryId === 'all') {
+  if (budgetCategoryId === 'all') {
     return getRecordsByMonth(month)
   }
 
   return db.records
-    .where('[categoryId+date]')
-    .between([categoryId, startDate], [categoryId, endDate], true, true)
+    .where('[budgetCategoryId+date]')
+    .between([budgetCategoryId, startDate], [budgetCategoryId, endDate], true, true)
     .reverse()
     .toArray()
 }

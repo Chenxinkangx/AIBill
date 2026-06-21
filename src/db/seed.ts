@@ -1,7 +1,7 @@
-import type { Category } from '../types'
+import type { BudgetCategory } from '../types'
 import { db } from './index'
 
-export const DEFAULT_CATEGORIES: Category[] = [
+export const DEFAULT_CATEGORIES: BudgetCategory[] = [
   { id: 'cat-food',       name: '餐饮',     icon: '\u{1F37D}\u{FE0F}', order: 1,  budgetable: true,  archived: false },
   { id: 'cat-transport',  name: '交通',     icon: '\u{1F686}',          order: 2,  budgetable: true,  archived: false },
   { id: 'cat-study',      name: '学习',     icon: '\u{1F4DA}',          order: 3,  budgetable: true,  archived: false },
