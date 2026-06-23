@@ -1,4 +1,5 @@
-import { formatMoney, formatPercent } from '../../utils/money'
+import { Card } from '@/components/ui/card'
+import { formatMoney, formatPercent } from '@/utils/money'
 
 interface Props {
   totalBudget: number
@@ -26,22 +27,31 @@ export default function BudgetSummary({
   const usageRate = totalBudget > 0 ? totalExpense / totalBudget : 0
   const progressStatus = budgetStatus ?? (isOverspent ? 'overspent' : 'normal')
 
+  const progressColor =
+    progressStatus === 'overspent'
+      ? 'bg-foreground'
+      : progressStatus === 'critical'
+        ? 'bg-destructive'
+        : progressStatus === 'warning'
+          ? 'bg-budget-yellow'
+          : 'bg-budget-green'
+
   return (
-    <div className="bg-white rounded-2xl p-5 space-y-4 shadow-sm">
+    <Card className="p-5 space-y-4 rounded-2xl">
       {/* Main remaining amount */}
       <div className="text-center">
-        <p className="text-sm text-gray-400 mb-1">
+        <p className="text-sm text-muted-foreground mb-1">
           {isCurrentMonth ? '本月还可以花' : '当月结余'}
         </p>
         <p
           className={`text-4xl font-bold ${
-            isOverspent ? 'text-red-500' : 'text-gray-900'
+            isOverspent ? 'text-destructive' : 'text-foreground'
           }`}
         >
           {formatMoney(isOverspent ? 0 : remaining)}
         </p>
         {isOverspent && (
-          <p className="text-xs text-red-500 mt-1">
+          <p className="text-xs text-destructive mt-1">
             已超支 {formatMoney(totalExpense - totalBudget)}
           </p>
         )}
@@ -49,9 +59,9 @@ export default function BudgetSummary({
 
       {/* Today suggested (current month only) */}
       {isCurrentMonth && todaySuggested !== null && !isOverspent && (
-        <div className="bg-indigo-50 rounded-xl px-4 py-3 text-center">
-          <p className="text-xs text-indigo-500 font-medium">今天建议最多花</p>
-          <p className="text-xl font-bold text-indigo-600">
+        <div className="bg-primary/10 rounded-xl px-4 py-3 text-center">
+          <p className="text-xs text-primary font-medium">今天建议最多花</p>
+          <p className="text-xl font-bold text-primary">
             {formatMoney(todaySuggested)}
           </p>
         </div>
@@ -59,9 +69,9 @@ export default function BudgetSummary({
 
       {/* Historical month surplus */}
       {!isCurrentMonth && monthlySurplus !== undefined && (
-        <div className="bg-gray-50 rounded-xl px-4 py-3 text-center">
-          <p className="text-xs text-gray-500 font-medium">当月结余</p>
-          <p className="text-xl font-bold text-gray-700">
+        <div className="bg-muted rounded-xl px-4 py-3 text-center">
+          <p className="text-xs text-muted-foreground font-medium">当月结余</p>
+          <p className="text-xl font-bold text-foreground">
             {formatMoney(monthlySurplus)}
           </p>
         </div>
@@ -69,35 +79,27 @@ export default function BudgetSummary({
 
       {/* Progress bar */}
       <div className="space-y-1">
-        <div className="flex justify-between text-xs text-gray-400">
+        <div className="flex justify-between text-xs text-muted-foreground">
           <span>已花 {formatMoney(totalExpense)}</span>
           <span>预算 {formatMoney(totalBudget)}</span>
         </div>
-        <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+        <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-500 ${
-              progressStatus === 'overspent'
-                ? 'bg-gray-950'
-                : progressStatus === 'critical'
-                  ? 'bg-red-500'
-                : progressStatus === 'warning'
-                  ? 'bg-yellow-500'
-                  : 'bg-green-500'
-            }`}
+            className={`h-full rounded-full transition-all duration-500 ${progressColor}`}
             style={{ width: `${Math.min(usageRate * 100, 100)}%` }}
           />
         </div>
-        <p className="text-right text-xs text-gray-400">
+        <p className="text-right text-xs text-muted-foreground">
           已使用 {formatPercent(usageRate)}
         </p>
       </div>
 
       {totalIncome > 0 && (
-        <div className="flex items-center justify-between text-xs text-gray-400 border-t border-gray-50 pt-3">
+        <div className="flex items-center justify-between text-xs text-muted-foreground border-t border-border pt-3">
           <span>本月收入</span>
-          <span className="font-medium text-green-600">{formatMoney(totalIncome)}</span>
+          <span className="font-medium text-budget-green">{formatMoney(totalIncome)}</span>
         </div>
       )}
-    </div>
+    </Card>
   )
 }

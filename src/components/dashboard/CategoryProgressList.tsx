@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { CategoryBudgetStatus, RecordItem } from '../../types'
-import { formatMoney } from '../../utils/money'
+import { Card } from '@/components/ui/card'
+import type { CategoryBudgetStatus, RecordItem } from '@/types'
+import { formatMoney } from '@/utils/money'
 import CategorySpendingDialog from './CategorySpendingDialog'
 
 interface Props {
@@ -47,10 +48,10 @@ export default function CategoryProgressList({ categoryStatuses, records, month 
   return (
     <section className="space-y-2" aria-labelledby="category-budget-title">
       <div className="flex items-center justify-between px-1">
-        <h2 id="category-budget-title" className="text-sm font-medium text-gray-600">
+        <h2 id="category-budget-title" className="text-sm font-medium text-muted-foreground">
           分类预算
         </h2>
-        <span className="text-xs text-gray-400">圆弧表示已花比例</span>
+        <span className="text-xs text-muted-foreground">圆弧表示已花比例</span>
       </div>
 
       {fundedCategories.length > 0 && (
@@ -69,15 +70,15 @@ export default function CategoryProgressList({ categoryStatuses, records, month 
         <button
           type="button"
           onClick={() => navigate('/budget')}
-          className="flex w-full items-center justify-between rounded-xl bg-white px-4 py-3 text-left transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+          className="flex w-full items-center justify-between rounded-xl bg-card px-4 py-3 text-left transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <span>
-            <span className="block text-sm font-medium text-gray-700">
+            <span className="block text-sm font-medium text-foreground">
               {unbudgetedCount} 个分类未设置预算
             </span>
-            <span className="mt-0.5 block text-xs text-gray-500">设置后会显示在预算圆环中</span>
+            <span className="mt-0.5 block text-xs text-muted-foreground">设置后会显示在预算圆环中</span>
           </span>
-          <span aria-hidden="true" className="text-lg text-gray-400">›</span>
+          <span aria-hidden="true" className="text-lg text-muted-foreground">›</span>
         </button>
       )}
 
@@ -114,11 +115,11 @@ function BudgetRing({ category, onClick }: { category: CategoryBudgetStatus; onC
       type="button"
       onClick={onClick}
       aria-label={`查看${category.categoryName}本月支出明细`}
-      className="min-w-0 rounded-xl bg-white px-1.5 py-3 text-left shadow-sm shadow-gray-100/80 transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+      className="min-w-0 rounded-xl bg-card px-1.5 py-3 text-left transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
       <div
         title={accessibleLabel}
-        className={`relative mx-auto aspect-square w-full max-w-[94px] ${isExhausted || isOverspent ? 'rounded-full ring-2 ring-red-100' : ''}`}
+        className={`relative mx-auto aspect-square w-full max-w-[94px] ${isExhausted || isOverspent ? 'rounded-full ring-2 ring-destructive/30' : ''}`}
       >
         <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90" aria-hidden="true">
           <circle
@@ -143,17 +144,17 @@ function BudgetRing({ category, onClick }: { category: CategoryBudgetStatus; onC
         </svg>
 
         <div className="absolute inset-[16%] flex flex-col items-center justify-center text-center">
-          <span className="max-w-full truncate text-xs font-semibold leading-tight text-gray-800">
+          <span className="max-w-full truncate text-xs font-semibold leading-tight text-foreground">
             {category.categoryName}
           </span>
           <span className={`mt-0.5 text-[9px] font-medium ${style.text}`}>{stateLabel}</span>
-          <span className={`${amountSize} mt-0.5 whitespace-nowrap font-bold leading-none text-gray-950`}>
+          <span className={`${amountSize} mt-0.5 whitespace-nowrap font-bold leading-none text-foreground`}>
             {amountText}
           </span>
         </div>
       </div>
 
-      <div className="mt-1.5 min-w-0 space-y-0.5 text-center text-[10px] leading-4 text-gray-500">
+      <div className="mt-1.5 min-w-0 space-y-0.5 text-center text-[10px] leading-4 text-muted-foreground">
         <p className="truncate tabular-nums">已花 {formatMoney(category.spent)}</p>
         <p className="truncate tabular-nums">预算 {formatMoney(category.budget)}</p>
       </div>

@@ -1,4 +1,6 @@
 import { useEffect, useRef } from 'react'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
 
 interface Props {
   value: string
@@ -30,25 +32,25 @@ export default function AiInputBox({
   }, [autoFocus, focusRequestKey])
 
   return (
-    <div className="bg-white rounded-2xl p-4 space-y-3 shadow-sm shadow-gray-100/80">
-      <label className="text-sm font-medium text-gray-600">
+    <div className="bg-card rounded-2xl p-4 space-y-3 shadow-sm">
+      <label className="text-sm font-medium text-muted-foreground">
         输入消费记录
       </label>
-      <textarea
+      <Textarea
         ref={textareaRef}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="例如：今天午饭18，地铁4，买书36，电影45"
         rows={3}
-        className="w-full px-4 py-3 rounded-2xl border border-gray-200 bg-gray-50/70 text-base outline-none focus:border-indigo-400 focus:bg-white transition-colors resize-none placeholder:text-gray-400"
+        className="w-full rounded-xl resize-none"
       />
-      <button
+      <Button
         onClick={onParse}
         disabled={parsing || !value.trim()}
-        className="w-full py-3 bg-indigo-500 text-white rounded-2xl text-sm font-semibold hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="w-full h-11 rounded-xl text-sm font-semibold"
       >
         {parsing ? 'AI 解析中...' : hasParsedResult ? '重新识别' : '智能识别'}
-      </button>
+      </Button>
     </div>
   )
 }
