@@ -1,5 +1,5 @@
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
+import StatusBadge from '@/components/common/StatusBadge'
 import { formatMoney, formatPercent } from '@/utils/money'
 import BudgetProgressBar from './BudgetProgressBar'
 
@@ -26,22 +26,6 @@ export default function CategoryBudgetRow({
   onRename,
   onArchive,
 }: Props) {
-  const statusLabel =
-    status === 'overspent'
-      ? `超支 ${formatMoney(spent - budget)}`
-      : status === 'critical'
-        ? '预算极限'
-        : status === 'warning'
-          ? '预算紧张'
-          : '预算宽裕'
-
-  const badgeVariant =
-    status === 'overspent' || status === 'critical'
-      ? 'destructive'
-      : status === 'warning'
-        ? 'default'
-        : 'secondary'
-
   return (
     <div className="bg-card rounded-xl p-4 space-y-2">
       {/* Header */}
@@ -94,9 +78,7 @@ export default function CategoryBudgetRow({
       {/* Status Label */}
       {budget > 0 && (
         <div className="flex justify-between items-center text-xs">
-          <Badge variant={badgeVariant} className="h-5 text-[11px] px-1.5">
-            {statusLabel}
-          </Badge>
+          <StatusBadge status={status} size="sm" />
           <span className="text-muted-foreground">{formatPercent(usageRate)}</span>
         </div>
       )}

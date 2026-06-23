@@ -5,9 +5,11 @@ import { manualRecordSchema, type ManualRecordFormValues } from '@/services/reco
 import type { BudgetCategory, Tag } from '@/types'
 import { getToday } from '@/utils/date'
 import TagSelector from '@/components/common/TagSelector'
+import FormField from '@/components/common/FormField'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { NativeSelect } from '@/components/ui/native-select'
 
 interface Props {
   categories: BudgetCategory[]
@@ -61,22 +63,17 @@ export default function ManualForm({ categories, tags, onSave, saving }: Props) 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {/* Title */}
-      <div>
-        <label className="block text-sm font-medium text-muted-foreground mb-1">消费内容</label>
+      <FormField label="消费内容" error={errors.title?.message}>
         <Input
           {...register('title')}
           placeholder="如：午饭、地铁、买书"
           className="h-11 rounded-xl"
         />
-        {errors.title && (
-          <p className="text-destructive text-xs mt-1">{errors.title.message}</p>
-        )}
-      </div>
+      </FormField>
 
       {/* Amount + Type row */}
       <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-sm font-medium text-muted-foreground mb-1">金额</label>
+        <FormField label="金额" error={errors.amount?.message}>
           <Input
             type="number"
             step="0.01"
@@ -84,79 +81,58 @@ export default function ManualForm({ categories, tags, onSave, saving }: Props) 
             placeholder="0.00"
             className="h-11 rounded-xl [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
-          {errors.amount && (
-            <p className="text-destructive text-xs mt-1">{errors.amount.message}</p>
-          )}
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-muted-foreground mb-1">类型</label>
-          <select
+        </FormField>
+        <FormField label="类型">
+          <NativeSelect
+            options={[
+              { value: 'expense', label: '支出' },
+              { value: 'income', label: '收入' },
+            ]}
             {...register('type')}
-            className="flex h-11 w-full min-w-0 rounded-xl border border-input bg-transparent px-3 py-2 text-base outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-          >
-            <option value="expense">支出</option>
-            <option value="income">收入</option>
-          </select>
-        </div>
+          />
+        </FormField>
       </div>
 
       {/* Category + Date row */}
       <div className="grid grid-cols-2 gap-3">
-        <div>
-        <label className="block text-sm font-medium text-muted-foreground mb-1">预算分类</label>
-          <select
+        <FormField label="预算分类" error={errors.budgetCategoryId?.message}>
+          <NativeSelect
+            options={[
+              { value: '', label: '从哪个预算扣？' },
+              ...categories
+                .filter((cat) =>
+                  recordType === 'income' ? cat.id === 'income' : cat.budgetable
+                )
+                .map((cat) => ({ value: cat.id, label: cat.name })),
+            ]}
             {...register('budgetCategoryId')}
-            className="flex h-11 w-full min-w-0 rounded-xl border border-input bg-transparent px-3 py-2 text-base outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-          >
-            <option value="">从哪个预算扣？</option>
-            {categories
-              .filter((cat) =>
-                recordType === 'income' ? cat.id === 'income' : cat.budgetable
-              )
-              .map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-          </select>
-          {errors.budgetCategoryId && (
-            <p className="text-destructive text-xs mt-1">{errors.budgetCategoryId.message}</p>
-          )}
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-muted-foreground mb-1">日期</label>
+          />
+        </FormField>
+        <FormField label="日期" error={errors.date?.message}>
           <Input
             type="date"
             {...register('date')}
             className="h-11 rounded-xl"
           />
-          {errors.date && (
-            <p className="text-destructive text-xs mt-1">{errors.date.message}</p>
-          )}
-        </div>
+        </FormField>
       </div>
 
-      <div>
-        <div className="mb-2 flex items-center justify-between">
-          <label className="text-sm font-medium text-muted-foreground">标签（可选）</label>
-          <span className="text-xs text-muted-foreground">用于筛选，不扣预算</span>
-        </div>
+      <FormField label="标签（可选）" description="用于筛选，不扣预算">
         <TagSelector
           tags={tags}
           selectedIds={tagIds}
           onChange={(ids) => setValue('tagIds', ids, { shouldDirty: true })}
         />
-      </div>
+      </FormField>
 
       {/* Note */}
-      <div>
-        <label className="block text-sm font-medium text-muted-foreground mb-1">备注（可选）</label>
+      <FormField label="备注（可选）">
         <Input
           {...register('note')}
           placeholder="补充说明"
           className="h-11 rounded-xl"
         />
-      </div>
+      </FormField>
 
       {/* Submit */}
       <Button

@@ -16,6 +16,7 @@ import Toast from '@/components/common/Toast'
 import { useToast } from '@/hooks/useToast'
 import ConfirmDialog from '@/components/common/ConfirmDialog'
 import RecentlyAddedList from '@/components/record/RecentlyAddedList'
+import PageHeader from '@/components/common/PageHeader'
 
 export default function AddRecordPage() {
   const navigate = useNavigate()
@@ -172,7 +173,7 @@ export default function AddRecordPage() {
   if (!monthlyBudget) {
     return (
       <div className="space-y-4">
-        <h1 className="text-xl font-bold text-foreground">记账</h1>
+        <PageHeader title="记账" />
         <EmptyState
           icon={'\u{1F4B0}'}
           title="请先设置本月预算"
@@ -187,7 +188,7 @@ export default function AddRecordPage() {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <h1 className="text-xl font-bold text-foreground">记账</h1>
+      <PageHeader title="记账" />
 
       {/* Mode switch */}
       <div className="flex bg-muted rounded-xl p-1">
