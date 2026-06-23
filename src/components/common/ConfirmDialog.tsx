@@ -1,3 +1,14 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+
 interface Props {
   open: boolean
   title: string
@@ -19,32 +30,23 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel,
 }: Props) {
-  if (!open) return null
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="bg-white rounded-2xl w-full max-w-sm p-6 space-y-4 shadow-xl">
-        <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
-        <p className="text-sm text-gray-500">{message}</p>
-        <div className="flex gap-3">
-          <button
-            onClick={onCancel}
-            className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm font-medium"
-          >
-            {cancelLabel}
-          </button>
-          <button
+    <AlertDialog open={open} onOpenChange={(nextOpen) => { if (!nextOpen) onCancel() }}>
+      <AlertDialogContent className="max-w-xs rounded-2xl">
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription>{message}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="mx-0 mb-0 rounded-none border-none bg-transparent p-0">
+          <AlertDialogCancel onClick={onCancel}>{cancelLabel}</AlertDialogCancel>
+          <AlertDialogAction
             onClick={onConfirm}
-            className={`flex-1 py-2.5 rounded-xl text-white text-sm font-medium ${
-              destructive
-                ? 'bg-red-500 hover:bg-red-600'
-                : 'bg-indigo-500 hover:bg-indigo-600'
-            } transition-colors`}
+            variant={destructive ? 'destructive' : 'default'}
           >
             {confirmLabel}
-          </button>
-        </div>
-      </div>
-    </div>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }

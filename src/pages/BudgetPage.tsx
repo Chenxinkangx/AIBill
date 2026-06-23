@@ -338,7 +338,7 @@ export default function BudgetPage() {
       />
       {editingCategory && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="bg-white rounded-2xl w-full max-w-sm p-6 space-y-4 shadow-xl">
+          <div className="w-full max-w-sm space-y-4 overflow-hidden rounded-2xl bg-white p-6 shadow-xl">
             <h3 className="text-lg font-semibold text-gray-800">编辑分类</h3>
             <input
               value={editingCategoryName}
