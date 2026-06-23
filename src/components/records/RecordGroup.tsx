@@ -1,6 +1,6 @@
-import type { RecordItem, BudgetCategory, Tag } from '../../types'
-import RecordCard from './RecordCard'
-import { sumMoney } from '../../utils/money'
+import type { RecordItem, BudgetCategory, Tag } from '@/types'
+import RecordCard from '@/components/records/RecordCard'
+import { sumMoney } from '@/utils/money'
 
 interface Props {
   date: string
@@ -51,17 +51,17 @@ export default function RecordGroup({
 
   return (
     <div className="bg-white rounded-xl overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-50">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-gray-700">{dateLabel}</span>
-          <span className="text-xs text-gray-400">{weekDays[d.getDay()]}</span>
+          <span className="text-sm font-medium text-foreground">{dateLabel}</span>
+          <span className="text-xs text-muted-foreground">{weekDays[d.getDay()]}</span>
         </div>
         <div className="flex items-center gap-3 text-xs">
           {totalExpense > 0 && (
-            <span className="text-gray-500">支出 ¥{totalExpense}</span>
+            <span className="text-muted-foreground">支出 ¥{totalExpense}</span>
           )}
           {totalIncome > 0 && (
-            <span className="text-green-600">收入 ¥{totalIncome}</span>
+            <span className="text-budget-green">收入 ¥{totalIncome}</span>
           )}
         </div>
       </div>

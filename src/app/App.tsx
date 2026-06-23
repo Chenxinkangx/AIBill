@@ -1,13 +1,13 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Layout from '../components/layout/Layout'
-import DashboardPage from '../pages/DashboardPage'
-import AddRecordPage from '../pages/AddRecordPage'
-import RecordsPage from '../pages/RecordsPage'
-import BudgetPage from '../pages/BudgetPage'
-import SettingsPage from '../pages/SettingsPage'
-import { useAppStore } from '../stores/appStore'
-import { useSettingsStore } from '../stores/settingsStore'
+import Layout from '@/components/layout/Layout'
+import DashboardPage from '@/pages/DashboardPage'
+import AddRecordPage from '@/pages/AddRecordPage'
+import RecordsPage from '@/pages/RecordsPage'
+import BudgetPage from '@/pages/BudgetPage'
+import SettingsPage from '@/pages/SettingsPage'
+import { useAppStore } from '@/stores/appStore'
+import { useSettingsStore } from '@/stores/settingsStore'
 
 function AppContent() {
   const { initialized, initializing, error, initialize } = useAppStore()
@@ -22,7 +22,7 @@ function AppContent() {
   if (initializing) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-400 text-lg">加载中...</p>
+        <p className="text-muted-foreground text-lg">加载中...</p>
       </div>
     )
   }
@@ -31,11 +31,11 @@ function AppContent() {
     return (
       <div className="flex items-center justify-center min-h-screen p-4">
         <div className="text-center space-y-2">
-          <p className="text-red-500 text-lg">初始化失败</p>
-          <p className="text-gray-400 text-sm">{error}</p>
+          <p className="text-destructive text-lg">初始化失败</p>
+          <p className="text-muted-foreground text-sm">{error}</p>
           <button
             onClick={() => initialize()}
-            className="mt-4 px-4 py-2 bg-indigo-500 text-white rounded-lg text-sm"
+            className="mt-4 px-4 py-2 bg-primary text-white rounded-lg text-sm"
           >
             重试
           </button>

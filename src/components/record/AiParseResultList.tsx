@@ -1,5 +1,8 @@
-import type { ParsedRecordItem, BudgetCategory, Tag } from '../../types'
-import TagSelector from '../common/TagSelector'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import type { ParsedRecordItem, BudgetCategory, Tag } from '@/types'
+import TagSelector from '@/components/common/TagSelector'
 
 interface Props {
   items: ParsedRecordItem[]
@@ -29,13 +32,13 @@ export default function AiParseResultList({
     .filter((name) => !existingTagNames.has(name))
 
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-sm shadow-gray-100/80">
-      <div className="px-4 py-3 border-b border-gray-100">
-        <p className="text-sm font-medium text-gray-700">
+    <div className="bg-card rounded-2xl overflow-hidden">
+      <div className="px-4 py-3 border-b border-border">
+        <p className="text-sm font-medium text-foreground">
           识别结果（{items.length} 条）
         </p>
       </div>
-      <div className="divide-y divide-gray-100">
+      <div className="divide-y divide-border">
         {items.map((item, index) => {
           const suggestedNames = item.tagNames.filter((name) => !existingTagNames.has(name))
           return (
@@ -43,33 +46,35 @@ export default function AiParseResultList({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 {item.confidence < 0.7 && (
-                  <span className="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded shrink-0">
+                  <span className="text-xs bg-warning/10 text-warning px-1.5 py-0.5 rounded shrink-0">
                     请确认
                   </span>
                 )}
                 <input
                   value={item.title}
                   onChange={(e) => onUpdate(index, 'title', e.target.value)}
-                  className="text-sm font-medium text-gray-800 outline-none bg-transparent flex-1 min-w-0"
+                  className="text-sm font-medium text-foreground outline-none bg-transparent flex-1 min-w-0"
                 />
               </div>
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => onRemove(index)}
-                className="text-red-500 hover:text-red-600 text-xs shrink-0 ml-2 px-2 py-1 rounded-lg hover:bg-red-50"
+                className="text-destructive hover:text-destructive shrink-0 ml-2"
               >
                 删除
-              </button>
+              </Button>
             </div>
 
             <div className="grid grid-cols-2 gap-2 text-sm sm:flex sm:items-center">
-              <input
+              <Input
                 type="number"
                 value={item.amount}
                 onChange={(e) => onUpdate(index, 'amount', Number(e.target.value))}
                 aria-label="金额"
-                className="w-full min-w-0 px-3 py-2 bg-gray-50 rounded-xl border border-transparent text-gray-800 text-sm outline-none focus:bg-white focus:border-indigo-300 [appearance:textfield] sm:w-20"
+                className="w-full min-w-0 sm:w-20"
               />
-              <span className="hidden sm:inline text-gray-300">|</span>
+              <span className="hidden sm:inline text-muted-foreground">|</span>
               <select
                 value={item.type}
                 onChange={(e) => {
@@ -83,12 +88,12 @@ export default function AiParseResultList({
                   onUpdate(index, 'budgetCategoryName', nextCategory?.name ?? '')
                 }}
                 aria-label="类型"
-                className="w-full min-w-0 px-3 py-2 bg-gray-50 rounded-xl border border-transparent text-sm text-gray-700 outline-none focus:bg-white focus:border-indigo-300 sm:w-auto sm:bg-transparent sm:px-0 sm:py-0"
+                className="w-full min-w-0 px-3 py-2 bg-muted rounded-xl border border-transparent text-sm text-foreground outline-none focus:bg-white focus:border-ring sm:w-auto sm:bg-transparent sm:px-0 sm:py-0"
               >
                 <option value="expense">支出</option>
                 <option value="income">收入</option>
               </select>
-              <span className="hidden sm:inline text-gray-300">|</span>
+              <span className="hidden sm:inline text-muted-foreground">|</span>
               <select
                 value={
                   getOptionsForType(item.type).some((c) => c.id === item.budgetCategoryId)
@@ -101,7 +106,7 @@ export default function AiParseResultList({
                   onUpdate(index, 'budgetCategoryName', cat?.name ?? '')
                 }}
                 aria-label="预算分类"
-                className="w-full min-w-0 px-3 py-2 bg-gray-50 rounded-xl border border-transparent text-sm text-gray-700 outline-none focus:bg-white focus:border-indigo-300 sm:w-auto sm:bg-transparent sm:px-0 sm:py-0"
+                className="w-full min-w-0 px-3 py-2 bg-muted rounded-xl border border-transparent text-sm text-foreground outline-none focus:bg-white focus:border-ring sm:w-auto sm:bg-transparent sm:px-0 sm:py-0"
               >
                 {getOptionsForType(item.type).map((cat) => (
                   <option key={cat.id} value={cat.id}>
@@ -109,17 +114,17 @@ export default function AiParseResultList({
                   </option>
                 ))}
               </select>
-              <span className="hidden sm:inline text-gray-300">|</span>
+              <span className="hidden sm:inline text-muted-foreground">|</span>
               <input
                 type="date"
                 value={item.date}
                 onChange={(e) => onUpdate(index, 'date', e.target.value)}
                 aria-label="日期"
-                className="w-full min-w-0 px-3 py-2 bg-gray-50 rounded-xl border border-transparent text-sm text-gray-700 outline-none focus:bg-white focus:border-indigo-300 sm:w-auto sm:bg-transparent sm:px-0 sm:py-0 sm:text-xs sm:text-gray-500"
+                className="w-full min-w-0 px-3 py-2 bg-muted rounded-xl border border-transparent text-sm text-foreground outline-none focus:bg-white focus:border-ring sm:w-auto sm:bg-transparent sm:px-0 sm:py-0 sm:text-xs sm:text-muted-foreground"
               />
             </div>
             <div>
-              <p className="mb-2 text-xs text-gray-400">标签（可选，不扣预算）</p>
+              <p className="mb-2 text-xs text-muted-foreground">标签（可选，不扣预算）</p>
               <TagSelector
                 tags={tags}
                 compact
@@ -156,14 +161,13 @@ export default function AiParseResultList({
             {item.rawText && (
               <div>
                 <div className="mb-1.5">
-                  <label htmlFor={`ai-record-note-${index}`} className="text-xs text-gray-500">备注</label>
+                  <label htmlFor={`ai-record-note-${index}`} className="text-xs text-muted-foreground">备注</label>
                 </div>
-                <textarea
+                <Textarea
                   id={`ai-record-note-${index}`}
                   value={item.rawText}
                   onChange={(event) => onUpdate(index, 'rawText', event.target.value)}
                   rows={2}
-                  className="w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm leading-5 text-gray-700 outline-none transition-colors focus:border-indigo-400 focus:bg-white"
                 />
               </div>
             )}
@@ -172,16 +176,16 @@ export default function AiParseResultList({
         })}
       </div>
 
-      <div className="px-4 py-3 border-t border-gray-100">
-        <button
+      <div className="px-4 py-3 border-t border-border">
+        <Button
           onClick={onConfirm}
           disabled={saving || items.length === 0}
-          className="w-full py-3 bg-green-600 text-white rounded-2xl text-sm font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full py-3"
         >
           {saving
             ? '保存中...'
             : `确认保存（${items.length} 条${newTagNames.length > 0 ? `，新建 ${newTagNames.length} 个标签` : ''}）`}
-        </button>
+        </Button>
       </div>
     </div>
   )

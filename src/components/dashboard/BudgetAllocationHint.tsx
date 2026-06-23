@@ -1,4 +1,4 @@
-import { formatMoney } from '../../utils/money'
+import { formatMoney } from '@/utils/money'
 
 interface Props {
   type: 'unallocated' | 'exact' | 'overspent'
@@ -12,8 +12,8 @@ export default function BudgetAllocationHint({ type, diff }: Props) {
     <div
       className={`rounded-xl px-4 py-2.5 text-sm ${
         type === 'unallocated'
-          ? 'bg-green-50 text-green-700'
-          : 'bg-red-50 text-red-600'
+          ? 'bg-budget-green/10 text-budget-green'
+          : 'bg-destructive/10 text-destructive'
       }`}
     >
       {type === 'unallocated' ? (

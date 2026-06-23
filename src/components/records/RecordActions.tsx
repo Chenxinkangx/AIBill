@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import ConfirmDialog from '../common/ConfirmDialog'
-import { updateRecord, deleteRecord } from '../../services/record/recordService'
-import type { RecordItem, BudgetCategory, Tag } from '../../types'
-import TagSelector from '../common/TagSelector'
+import { Button } from '@/components/ui/button'
+import ConfirmDialog from '@/components/common/ConfirmDialog'
+import { updateRecord, deleteRecord } from '@/services/record/recordService'
+import type { RecordItem, BudgetCategory, Tag } from '@/types'
+import TagSelector from '@/components/common/TagSelector'
 
 interface Props {
   record: RecordItem
@@ -83,12 +84,12 @@ export default function RecordActions({
 
   if (editing) {
     return (
-      <div className="bg-gray-50 rounded-xl p-4 mt-2 space-y-3 border border-gray-100">
+      <div className="bg-muted/50 rounded-xl p-4 mt-2 space-y-3 border border-border">
         <input
           value={form.title}
           onChange={(e) => setForm({ ...form, title: e.target.value })}
           placeholder="内容"
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-indigo-400"
+          className="w-full px-3 py-2 rounded-lg border border-border text-sm outline-none focus:border-ring"
         />
         <div className="grid grid-cols-2 gap-2">
           <input
@@ -96,7 +97,7 @@ export default function RecordActions({
             value={form.amount}
             onChange={(e) => setForm({ ...form, amount: Number(e.target.value) })}
             placeholder="金额"
-            className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-indigo-400 [appearance:textfield]"
+            className="w-full px-3 py-2 rounded-lg border border-border text-sm outline-none focus:border-ring [appearance:textfield]"
           />
           <select
             value={form.type}
@@ -108,7 +109,7 @@ export default function RecordActions({
                   : categories.find((c) => c.budgetable && c.id !== 'income')?.id ?? ''
               setForm({ ...form, type, budgetCategoryId: nextCategory })
             }}
-            className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-indigo-400 bg-white"
+            className="w-full px-3 py-2 rounded-lg border border-border text-sm outline-none focus:border-ring bg-white"
           >
             <option value="expense">支出</option>
             <option value="income">收入</option>
@@ -118,7 +119,7 @@ export default function RecordActions({
           <select
             value={form.budgetCategoryId}
             onChange={(e) => setForm({ ...form, budgetCategoryId: e.target.value })}
-            className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-indigo-400 bg-white"
+            className="w-full px-3 py-2 rounded-lg border border-border text-sm outline-none focus:border-ring bg-white"
           >
             {categories
               .filter((c) =>
@@ -136,11 +137,11 @@ export default function RecordActions({
             type="date"
             value={form.date}
             onChange={(e) => setForm({ ...form, date: e.target.value })}
-            className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-indigo-400"
+            className="w-full px-3 py-2 rounded-lg border border-border text-sm outline-none focus:border-ring"
           />
         </div>
         <div>
-          <p className="mb-2 text-xs text-gray-400">标签（可选，不扣预算）</p>
+          <p className="mb-2 text-xs text-muted-foreground">标签（可选，不扣预算）</p>
           <TagSelector
             tags={tags}
             compact
@@ -152,23 +153,24 @@ export default function RecordActions({
           value={form.note}
           onChange={(e) => setForm({ ...form, note: e.target.value })}
           placeholder="备注"
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-indigo-400"
+          className="w-full px-3 py-2 rounded-lg border border-border text-sm outline-none focus:border-ring"
         />
-        {error && <p className="text-xs text-red-500">{error}</p>}
+        {error && <p className="text-xs text-destructive">{error}</p>}
         <div className="flex gap-2">
-          <button
+          <Button
+            variant="outline"
             onClick={() => setEditing(false)}
-            className="flex-1 py-2 rounded-lg border border-gray-200 text-gray-600 text-sm"
+            className="flex-1"
           >
             取消
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleSave}
             disabled={saving}
-            className="flex-1 py-2 rounded-lg bg-indigo-500 text-white text-sm disabled:opacity-50"
+            className="flex-1"
           >
             {saving ? '保存中...' : '保存'}
-          </button>
+          </Button>
         </div>
       </div>
     )
@@ -179,14 +181,14 @@ export default function RecordActions({
       <div className="flex gap-1 mt-2">
         <button
           onClick={() => setEditing(true)}
-          className="px-3 py-1.5 text-xs font-medium text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+          className="px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/10 rounded-lg transition-colors"
         >
           编辑
         </button>
         {showDeleteAction && (
           <button
             onClick={() => setDeleting(true)}
-            className="px-3 py-1.5 text-xs font-medium text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+            className="px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
           >
             删除
           </button>

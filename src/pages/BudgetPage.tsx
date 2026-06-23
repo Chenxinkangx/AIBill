@@ -1,24 +1,27 @@
 import { useEffect, useState, useCallback } from 'react'
-import { db } from '../db/index'
-import { useAppStore } from '../stores/appStore'
-import { getBudgetAllocationDiff, getCategoryBudgetStatuses } from '../services/budget/calculator'
-import { getRecordsByMonth } from '../services/record/recordService'
-import { getToday } from '../utils/date'
-import { formatMoney, sumMoney } from '../utils/money'
-import type { BudgetCategory, MonthlyBudget, CategoryBudget, RecordItem } from '../types'
-import MonthPicker from '../components/common/MonthPicker'
-import TotalBudgetInput from '../components/budget/TotalBudgetInput'
-import CategoryBudgetRow from '../components/budget/CategoryBudgetRow'
-import { generateId } from '../utils/id'
+import { db } from '@/db/index'
+import { useAppStore } from '@/stores/appStore'
+import { getBudgetAllocationDiff, getCategoryBudgetStatuses } from '@/services/budget/calculator'
+import { getRecordsByMonth } from '@/services/record/recordService'
+import { getToday } from '@/utils/date'
+import { formatMoney, sumMoney } from '@/utils/money'
+import type { BudgetCategory, MonthlyBudget, CategoryBudget, RecordItem } from '@/types'
+import MonthPicker from '@/components/common/MonthPicker'
+import TotalBudgetInput from '@/components/budget/TotalBudgetInput'
+import CategoryBudgetRow from '@/components/budget/CategoryBudgetRow'
+import { generateId } from '@/utils/id'
 import {
   createCategory,
   archiveCategory,
   renameCategory,
   restoreCategory,
-} from '../services/category/categoryService'
-import ConfirmDialog from '../components/common/ConfirmDialog'
-import Toast from '../components/common/Toast'
-import { useToast } from '../hooks/useToast'
+} from '@/services/category/categoryService'
+import ConfirmDialog from '@/components/common/ConfirmDialog'
+import Toast from '@/components/common/Toast'
+import { useToast } from '@/hooks/useToast'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card } from '@/components/ui/card'
 
 export default function BudgetPage() {
   const currentMonth = useAppStore((s) => s.currentMonth)
@@ -214,28 +217,28 @@ export default function BudgetPage() {
 
       {/* Allocation Diff */}
       {monthlyBudget && monthlyBudget.totalBudget > 0 && (
-        <div className="bg-white rounded-xl px-4 py-3">
+        <Card className="rounded-xl px-4 py-3">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-500">分类预算合计</span>
+            <span className="text-muted-foreground">分类预算合计</span>
             <span className="font-medium">{formatMoney(totalAllocated)}</span>
           </div>
           {allocationDiff && (
             <div className="flex items-center justify-between text-sm mt-1">
               {allocationDiff.type === 'unallocated' && (
                 <>
-                  <span className="text-green-600">未分配预算</span>
-                  <span className="text-green-600 font-medium">
+                  <span className="text-budget-green">未分配预算</span>
+                  <span className="text-budget-green font-medium">
                     +{formatMoney(allocationDiff.diff)}
                   </span>
                 </>
               )}
               {allocationDiff.type === 'exact' && (
-                <span className="text-gray-400 col-span-2">预算已全部分配</span>
+                <span className="text-muted-foreground col-span-2">预算已全部分配</span>
               )}
               {allocationDiff.type === 'overspent' && (
                 <>
-                  <span className="text-red-500">已超出总预算</span>
-                  <span className="text-red-500 font-medium">
+                  <span className="text-budget-red">已超出总预算</span>
+                  <span className="text-budget-red font-medium">
                     -{formatMoney(allocationDiff.diff)}
                   </span>
                 </>
@@ -243,22 +246,22 @@ export default function BudgetPage() {
             </div>
           )}
           <div className="flex items-center justify-between text-sm mt-1">
-            <span className="text-gray-500">本月收入</span>
-            <span className="text-green-600 font-medium">{formatMoney(totalIncome)}</span>
+            <span className="text-muted-foreground">本月收入</span>
+            <span className="text-budget-green font-medium">{formatMoney(totalIncome)}</span>
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Empty State */}
       {!monthlyBudget && (
-        <div className="text-center py-10 text-gray-400 space-y-2">
+        <div className="text-center py-10 text-muted-foreground space-y-2">
           <p>设置本月总预算后，即可分配分类预算</p>
         </div>
       )}
 
       {/* Category Budgets */}
       <div className="space-y-3">
-        <h2 className="text-sm font-medium text-gray-500 px-1">分类预算</h2>
+        <h2 className="text-sm font-medium text-muted-foreground px-1">分类预算</h2>
         {categories.map((cat) => {
           const cb = categoryBudgets.find((b) => b.budgetCategoryId === cat.id)
           const status = categoryStatuses.find((s) => s.budgetCategoryId === cat.id)
@@ -278,46 +281,42 @@ export default function BudgetPage() {
             />
           )
         })}
-        <div className="bg-white rounded-xl p-4 space-y-2">
-          <h3 className="text-sm font-medium text-gray-700">添加预算分类</h3>
+        <Card className="rounded-xl p-4 space-y-2">
+          <h3 className="text-sm font-medium text-foreground">添加预算分类</h3>
           <div className="flex gap-2">
-            <input
+            <Input
               value={newCategoryName}
               onChange={(e) => setNewCategoryName(e.target.value)}
               placeholder="预算分类名称"
-              className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-indigo-400"
+              className="flex-1 h-10 rounded-lg"
             />
-            <button
-              type="button"
-              onClick={handleCreateCategory}
-              className="px-4 py-2 rounded-lg bg-indigo-500 text-white text-sm font-medium hover:bg-indigo-600"
-            >
+            <Button type="button" onClick={handleCreateCategory} className="h-10 rounded-lg px-4">
               添加
-            </button>
+            </Button>
           </div>
-        </div>
+        </Card>
       </div>
 
       {archivedCategories.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-sm font-medium text-gray-500 px-1">已归档预算分类</h2>
-          <div className="bg-white rounded-xl divide-y divide-gray-50">
+          <h2 className="text-sm font-medium text-muted-foreground px-1">已归档预算分类</h2>
+          <Card className="rounded-xl divide-y divide-border">
             {archivedCategories.map((cat) => (
               <div key={cat.id} className="flex items-center justify-between px-4 py-3">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">{cat.icon || '📦'}</span>
-                  <span className="text-sm font-medium text-gray-500">{cat.name}</span>
+                  <span className="text-sm font-medium text-muted-foreground">{cat.name}</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => handleRestoreCategory(cat)}
-                  className="text-xs text-indigo-500 hover:text-indigo-600"
+                  className="text-xs text-primary hover:text-primary/80"
                 >
                   恢复
                 </button>
               </div>
             ))}
-          </div>
+          </Card>
         </div>
       )}
 
@@ -338,34 +337,33 @@ export default function BudgetPage() {
       />
       {editingCategory && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="w-full max-w-sm space-y-4 overflow-hidden rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-800">编辑分类</h3>
-            <input
+          <Card className="w-full max-w-sm p-6 space-y-4 rounded-2xl">
+            <h3 className="text-lg font-semibold text-foreground">编辑分类</h3>
+            <Input
               value={editingCategoryName}
               onChange={(e) => setEditingCategoryName(e.target.value)}
               autoFocus
-              className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-indigo-400"
+              className="w-full h-10 rounded-lg"
             />
             <div className="flex gap-3">
-              <button
-                type="button"
+              <Button
+                variant="outline"
                 onClick={() => {
                   setEditingCategory(null)
                   setEditingCategoryName('')
                 }}
-                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm font-medium"
+                className="flex-1 h-10 rounded-xl"
               >
                 取消
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
                 onClick={handleRenameCategory}
-                className="flex-1 py-2.5 rounded-xl bg-indigo-500 text-white text-sm font-medium hover:bg-indigo-600"
+                className="flex-1 h-10 rounded-xl"
               >
                 保存
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
         </div>
       )}
       <Toast toast={toast} />

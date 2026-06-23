@@ -1,4 +1,4 @@
-import type { Tag } from '../../types'
+import type { Tag } from '@/types'
 
 interface Props {
   tags: Tag[]
@@ -11,7 +11,7 @@ export default function TagSelector({ tags, selectedIds, onChange, compact = fal
   const activeTags = tags.filter((tag) => !tag.archived).sort((a, b) => a.order - b.order)
 
   if (activeTags.length === 0) {
-    return <p className="text-xs text-gray-400">还没有标签，可在设置中创建</p>
+    return <p className="text-xs text-muted-foreground">还没有标签，可在设置中创建</p>
   }
 
   const toggle = (id: string) => {
@@ -36,8 +36,8 @@ export default function TagSelector({ tags, selectedIds, onChange, compact = fal
               compact ? 'px-2.5 py-1 text-xs' : 'px-3 py-1.5 text-sm'
             } ${
               selected
-                ? 'border-gray-700 bg-gray-800 text-white shadow-sm'
-                : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                ? 'border-gray-700 bg-foreground text-white shadow-sm'
+                : 'border-border bg-white text-foreground hover:border-gray-300'
             }`}
           >
             <span

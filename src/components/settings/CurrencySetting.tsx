@@ -1,4 +1,4 @@
-import { useSettingsStore } from '../../stores/settingsStore'
+import { useSettingsStore } from '@/stores/settingsStore'
 
 export default function CurrencySetting() {
   const settings = useSettingsStore((s) => s.settings)
@@ -6,14 +6,14 @@ export default function CurrencySetting() {
 
   return (
     <div className="space-y-3">
-      <h2 className="text-sm font-medium text-gray-500">偏好设置</h2>
+      <h2 className="text-sm font-medium text-muted-foreground">偏好设置</h2>
 
       <div className="bg-white rounded-xl px-4 py-3 flex items-center justify-between">
-        <span className="text-sm text-gray-700">货币单位</span>
+        <span className="text-sm text-foreground">货币单位</span>
         <select
           value={settings?.currency ?? 'CNY'}
           onChange={(e) => updateSettings({ currency: e.target.value as 'CNY' })}
-          className="text-sm text-gray-700 outline-none bg-transparent"
+          className="text-sm text-foreground outline-none bg-transparent"
         >
           <option value="CNY">CNY (¥)</option>
           <option value="USD" disabled>USD ($) — 即将支持</option>
@@ -21,9 +21,9 @@ export default function CurrencySetting() {
       </div>
 
       <div className="bg-white rounded-xl px-4 py-3 space-y-1">
-        <label className="text-xs text-gray-400">默认月预算</label>
+        <label className="text-xs text-muted-foreground">默认月预算</label>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-400">¥</span>
+          <span className="text-sm text-muted-foreground">¥</span>
           <input
             type="number"
             min="0"
@@ -34,7 +34,7 @@ export default function CurrencySetting() {
               })
             }
             placeholder="用于新建历史月份预算"
-            className="flex-1 text-sm text-gray-700 outline-none bg-transparent placeholder:text-gray-300"
+            className="flex-1 text-sm text-foreground outline-none bg-transparent placeholder:text-muted-foreground"
           />
         </div>
       </div>

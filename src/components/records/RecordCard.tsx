@@ -1,10 +1,10 @@
 import { useRef, useState } from 'react'
 import type { PointerEvent } from 'react'
-import type { RecordItem, BudgetCategory, Tag } from '../../types'
-import { formatMoney } from '../../utils/money'
-import RecordActions from './RecordActions'
-import ConfirmDialog from '../common/ConfirmDialog'
-import { deleteRecord } from '../../services/record/recordService'
+import type { RecordItem, BudgetCategory, Tag } from '@/types'
+import { formatMoney } from '@/utils/money'
+import RecordActions from '@/components/records/RecordActions'
+import ConfirmDialog from '@/components/common/ConfirmDialog'
+import { deleteRecord } from '@/services/record/recordService'
 
 interface Props {
   record: RecordItem
@@ -93,8 +93,8 @@ export default function RecordCard({ record, categoryName, categories, tags, onU
   const offset = swipeOpen ? -88 : dragX
 
   return (
-    <div className="relative overflow-hidden border-b border-gray-100 last:border-b-0">
-      <div className="absolute inset-y-0 right-0 flex w-[88px] items-stretch justify-end bg-red-500">
+    <div className="relative overflow-hidden border-b border-border last:border-b-0">
+      <div className="absolute inset-y-0 right-0 flex w-[88px] items-stretch justify-end bg-destructive">
         <button
           onClick={() => setDeleting(true)}
           className="w-full text-sm font-medium text-white"
@@ -114,14 +114,14 @@ export default function RecordCard({ record, categoryName, categories, tags, onU
       >
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-sm">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-muted text-sm">
               {record.type === 'income' ? '入' : '出'}
             </span>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-800 truncate">
+              <p className="text-sm font-medium text-foreground truncate">
                 {record.title}
               </p>
-              <div className="mt-0.5 flex items-center gap-2 text-xs text-gray-400">
+              <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
                 <span className="truncate">{categoryName}</span>
                 {createdTime && (
                   <>
@@ -135,19 +135,19 @@ export default function RecordCard({ record, categoryName, categories, tags, onU
           <div className="flex shrink-0 flex-col items-end gap-0.5">
             <span
               className={`text-sm font-semibold ${
-                record.type === 'income' ? 'text-green-600' : 'text-gray-900'
+                record.type === 'income' ? 'text-budget-green' : 'text-foreground'
               }`}
             >
               {record.type === 'income' ? '+' : '-'}
               {formatMoney(record.amount)}
             </span>
-            <span className="text-xs text-gray-300">{expanded ? '收起' : '详情'}</span>
+            <span className="text-xs text-muted-foreground">{expanded ? '收起' : '详情'}</span>
           </div>
         </div>
 
         {expanded && (
           <div
-            className="mt-3 ml-11 space-y-2 rounded-2xl bg-gray-50 px-3 py-3 text-xs text-gray-500"
+            className="mt-3 ml-11 space-y-2 rounded-2xl bg-muted/50 px-3 py-3 text-xs text-muted-foreground"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="grid grid-cols-2 gap-2">
@@ -161,16 +161,16 @@ export default function RecordCard({ record, categoryName, categories, tags, onU
             </div>
             {record.note && (
               <div>
-                <span className="text-gray-400">备注</span>
-                <p className="mt-1 text-gray-700">{record.note}</p>
+                <span className="text-muted-foreground">备注</span>
+                <p className="mt-1 text-foreground">{record.note}</p>
               </div>
             )}
             {recordTags.length > 0 && (
               <div>
-                <span className="text-gray-400">标签</span>
+                <span className="text-muted-foreground">标签</span>
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
                   {recordTags.map((tag) => (
-                    <span key={tag.id} className="rounded-full bg-white px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-gray-200">
+                    <span key={tag.id} className="rounded-full bg-white px-2 py-1 text-xs font-medium text-foreground ring-1 ring-border">
                       <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full" style={{ backgroundColor: tag.color }} />
                       {tag.name}
                     </span>
@@ -178,7 +178,7 @@ export default function RecordCard({ record, categoryName, categories, tags, onU
                 </div>
               </div>
             )}
-            {deleteError && <p className="text-red-500">{deleteError}</p>}
+            {deleteError && <p className="text-destructive">{deleteError}</p>}
             <RecordActions
               record={record}
               categories={categories}
@@ -207,8 +207,8 @@ export default function RecordCard({ record, categoryName, categories, tags, onU
 function Detail({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <span className="text-gray-400">{label}</span>
-      <p className="mt-0.5 font-medium text-gray-700">{value}</p>
+      <span className="text-muted-foreground">{label}</span>
+      <p className="mt-0.5 font-medium text-foreground">{value}</p>
     </div>
   )
 }

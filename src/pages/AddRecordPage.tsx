@@ -1,21 +1,21 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { db } from '../db/index'
-import { useRecordStore } from '../stores/recordStore'
-import { useAppStore } from '../stores/appStore'
-import { createRecord, createRecordsFromParsed } from '../services/record/recordService'
-import { parseNaturalLanguageRecord } from '../services/ai/parseRecord'
-import { getToday } from '../utils/date'
-import type { BudgetCategory, MonthlyBudget, ParsedRecordItem, RecordItem, Tag } from '../types'
-import ManualForm from '../components/record/ManualForm'
-import AiInputBox from '../components/record/AiInputBox'
-import AiParseResultList from '../components/record/AiParseResultList'
-import type { ManualRecordFormValues } from '../services/record/validation'
-import EmptyState from '../components/common/EmptyState'
-import Toast from '../components/common/Toast'
-import { useToast } from '../hooks/useToast'
-import ConfirmDialog from '../components/common/ConfirmDialog'
-import RecentlyAddedList from '../components/record/RecentlyAddedList'
+import { db } from '@/db/index'
+import { useRecordStore } from '@/stores/recordStore'
+import { useAppStore } from '@/stores/appStore'
+import { createRecord, createRecordsFromParsed } from '@/services/record/recordService'
+import { parseNaturalLanguageRecord } from '@/services/ai/parseRecord'
+import { getToday } from '@/utils/date'
+import type { BudgetCategory, MonthlyBudget, ParsedRecordItem, RecordItem, Tag } from '@/types'
+import ManualForm from '@/components/record/ManualForm'
+import AiInputBox from '@/components/record/AiInputBox'
+import AiParseResultList from '@/components/record/AiParseResultList'
+import type { ManualRecordFormValues } from '@/services/record/validation'
+import EmptyState from '@/components/common/EmptyState'
+import Toast from '@/components/common/Toast'
+import { useToast } from '@/hooks/useToast'
+import ConfirmDialog from '@/components/common/ConfirmDialog'
+import RecentlyAddedList from '@/components/record/RecentlyAddedList'
 
 export default function AddRecordPage() {
   const navigate = useNavigate()
@@ -164,7 +164,7 @@ export default function AddRecordPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-gray-400">加载中...</p>
+        <p className="text-muted-foreground">加载中...</p>
       </div>
     )
   }
@@ -172,7 +172,7 @@ export default function AddRecordPage() {
   if (!monthlyBudget) {
     return (
       <div className="space-y-4">
-        <h1 className="text-xl font-bold text-gray-800">记账</h1>
+        <h1 className="text-xl font-bold text-foreground">记账</h1>
         <EmptyState
           icon={'\u{1F4B0}'}
           title="请先设置本月预算"
@@ -187,16 +187,16 @@ export default function AddRecordPage() {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <h1 className="text-xl font-bold text-gray-800">记账</h1>
+      <h1 className="text-xl font-bold text-foreground">记账</h1>
 
       {/* Mode switch */}
-      <div className="flex bg-gray-100 rounded-xl p-1">
+      <div className="flex bg-muted rounded-xl p-1">
         <button
           onClick={() => setMode('ai')}
           className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${
             mode === 'ai'
-              ? 'bg-white text-gray-800 shadow-sm'
-              : 'text-gray-500'
+              ? 'bg-card text-foreground shadow-sm'
+              : 'text-muted-foreground'
           }`}
         >
           AI 智能记账
@@ -205,8 +205,8 @@ export default function AddRecordPage() {
           onClick={() => setMode('manual')}
           className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${
             mode === 'manual'
-              ? 'bg-white text-gray-800 shadow-sm'
-              : 'text-gray-500'
+              ? 'bg-card text-foreground shadow-sm'
+              : 'text-muted-foreground'
           }`}
         >
           手动记账
@@ -228,7 +228,7 @@ export default function AddRecordPage() {
 
           {/* AI Error */}
           {aiError && (
-            <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3 text-sm text-red-600">
+            <div className="bg-destructive/10 border border-destructive/20 rounded-xl px-4 py-3 text-sm text-destructive">
               {aiError}
               {aiError.includes('API Key') && (
                 <button
@@ -256,7 +256,7 @@ export default function AddRecordPage() {
       {/* Manual mode */}
       {mode === 'manual' && (
         <div className="space-y-4">
-          <p className="text-sm text-gray-400">逐条记录每一笔消费</p>
+          <p className="text-sm text-muted-foreground">逐条记录每一笔消费</p>
           <ManualForm categories={categories} tags={tags} onSave={handleManualSave} saving={saving} />
         </div>
       )}

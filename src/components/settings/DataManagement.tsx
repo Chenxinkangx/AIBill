@@ -1,12 +1,13 @@
 import { useState, useRef } from 'react'
-import { downloadBackup } from '../../services/backup/export'
-import { importBackupFromFile } from '../../services/backup/import'
-import { db } from '../../db/index'
-import { initializeIfNeeded } from '../../db/seed'
-import ConfirmDialog from '../common/ConfirmDialog'
-import { useSettingsStore } from '../../stores/settingsStore'
-import Toast from '../common/Toast'
-import { useToast } from '../../hooks/useToast'
+import { Button } from '@/components/ui/button'
+import { downloadBackup } from '@/services/backup/export'
+import { importBackupFromFile } from '@/services/backup/import'
+import { db } from '@/db/index'
+import { initializeIfNeeded } from '@/db/seed'
+import ConfirmDialog from '@/components/common/ConfirmDialog'
+import { useSettingsStore } from '@/stores/settingsStore'
+import Toast from '@/components/common/Toast'
+import { useToast } from '@/hooks/useToast'
 
 export default function DataManagement() {
   const loadSettings = useSettingsStore((s) => s.loadSettings)
@@ -83,20 +84,20 @@ export default function DataManagement() {
 
   return (
     <div className="space-y-3">
-      <h2 className="text-sm font-medium text-gray-500">数据管理</h2>
+      <h2 className="text-sm font-medium text-muted-foreground">数据管理</h2>
 
       <button
         onClick={handleExport}
-        className="w-full flex items-center justify-between px-4 py-3 bg-white rounded-xl text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+        className="w-full flex items-center justify-between px-4 py-3 bg-white rounded-xl text-sm text-foreground hover:bg-muted/80 transition-colors"
       >
         <span>导出 JSON 备份</span>
-        <span className="text-gray-400">📥</span>
+        <span className="text-muted-foreground">📥</span>
       </button>
 
       <label className="block">
-        <div className="w-full flex items-center justify-between px-4 py-3 bg-white rounded-xl text-sm text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer">
+        <div className="w-full flex items-center justify-between px-4 py-3 bg-white rounded-xl text-sm text-foreground hover:bg-muted/80 transition-colors cursor-pointer">
           <span>{importing ? '导入中...' : '导入 JSON 恢复'}</span>
-          <span className="text-gray-400">📤</span>
+          <span className="text-muted-foreground">📤</span>
         </div>
         <input
           ref={fileInputRef}
@@ -108,13 +109,14 @@ export default function DataManagement() {
         />
       </label>
 
-      <button
+      <Button
+        variant="destructive"
         onClick={() => setClearing(true)}
-        className="w-full flex items-center justify-between px-4 py-3 bg-white rounded-xl text-sm text-red-500 hover:bg-red-50 transition-colors"
+        className="w-full flex items-center justify-between"
       >
         <span>清空所有数据</span>
         <span>🗑️</span>
-      </button>
+      </Button>
 
       <Toast toast={toast} />
 
