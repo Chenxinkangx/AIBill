@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Card } from '@/components/ui/card'
 import type { CategoryBudgetStatus, RecordItem } from '@/types'
 import { formatMoney } from '@/utils/money'
 import CategorySpendingDialog from './CategorySpendingDialog'
@@ -15,26 +14,10 @@ const RADIUS = 48
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
 
 const STATUS_STYLES = {
-  normal: {
-    progress: 'stroke-emerald-500',
-    track: 'stroke-emerald-100',
-    text: 'text-emerald-700',
-  },
-  warning: {
-    progress: 'stroke-amber-500',
-    track: 'stroke-amber-100',
-    text: 'text-amber-700',
-  },
-  critical: {
-    progress: 'stroke-red-500',
-    track: 'stroke-red-100',
-    text: 'text-red-600',
-  },
-  overspent: {
-    progress: 'stroke-red-600',
-    track: 'stroke-red-100',
-    text: 'text-red-700',
-  },
+  normal: { progress: 'stroke-budget-green', track: 'stroke-budget-green/20', text: 'text-budget-green' },
+  warning: { progress: 'stroke-budget-yellow', track: 'stroke-budget-yellow/20', text: 'text-budget-yellow' },
+  critical: { progress: 'stroke-destructive', track: 'stroke-destructive/20', text: 'text-destructive' },
+  overspent: { progress: 'stroke-destructive', track: 'stroke-destructive/20', text: 'text-destructive' },
 } as const
 
 export default function CategoryProgressList({ categoryStatuses, records, month }: Props) {
