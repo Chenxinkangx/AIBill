@@ -155,26 +155,37 @@ export default function DashboardPage() {
       {/* Has budget */}
       {budgetData && (
         <>
-          <BudgetSummary
-            totalBudget={budgetData.summary!.totalBudget}
-            totalExpense={budgetData.summary!.totalExpense}
-            remaining={budgetData.summary!.remaining}
-            isOverspent={budgetData.summary!.isOverspent}
-            todaySuggested={budgetData.summary!.todaySuggested}
-            monthlySurplus={budgetData.summary!.monthlySurplus}
-            isCurrentMonth={_isCurrentMonth}
-            totalIncome={totalIncome}
-            budgetStatus={totalBudgetStatus}
-          />
-
-          {/* Allocation hint */}
-          {budgetData.allocationDiff &&
-            budgetData.allocationDiff.type !== 'exact' && (
-              <BudgetAllocationHint
-                type={budgetData.allocationDiff.type}
-                diff={budgetData.allocationDiff.diff}
+          <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
+            <div className="md:col-span-2">
+              <BudgetSummary
+                totalBudget={budgetData.summary!.totalBudget}
+                totalExpense={budgetData.summary!.totalExpense}
+                remaining={budgetData.summary!.remaining}
+                isOverspent={budgetData.summary!.isOverspent}
+                todaySuggested={budgetData.summary!.todaySuggested}
+                monthlySurplus={budgetData.summary!.monthlySurplus}
+                isCurrentMonth={_isCurrentMonth}
+                totalIncome={totalIncome}
+                budgetStatus={totalBudgetStatus}
               />
+            </div>
+
+            {/* Allocation hint */}
+            {budgetData.allocationDiff &&
+              budgetData.allocationDiff.type !== 'exact' && (
+                <BudgetAllocationHint
+                  type={budgetData.allocationDiff.type}
+                  diff={budgetData.allocationDiff.diff}
+                />
+              )}
+
+            {/* Quick add button */}
+            {monthlyBudget && (
+              <Button onClick={() => navigate('/add')} className="w-full h-11 rounded-xl font-medium self-end">
+                记一笔
+              </Button>
             )}
+          </div>
 
           {/* Category progress */}
           {budgetData.categoryStatuses.length > 0 && (
@@ -185,13 +196,6 @@ export default function DashboardPage() {
             />
           )}
         </>
-      )}
-
-      {/* Quick add button */}
-      {monthlyBudget && (
-        <Button onClick={() => navigate('/add')} className="w-full h-11 rounded-xl font-medium">
-          记一笔
-        </Button>
       )}
     </div>
   )

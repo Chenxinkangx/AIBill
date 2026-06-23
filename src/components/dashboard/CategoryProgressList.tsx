@@ -55,7 +55,7 @@ export default function CategoryProgressList({ categoryStatuses, records, month 
       </div>
 
       {fundedCategories.length > 0 && (
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2 md:grid-cols-4 lg:grid-cols-5">
           {fundedCategories.map((category) => (
             <BudgetRing
               key={category.budgetCategoryId}

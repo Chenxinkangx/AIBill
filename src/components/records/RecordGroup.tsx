@@ -50,7 +50,7 @@ export default function RecordGroup({
   )
 
   return (
-    <div className="bg-white rounded-xl overflow-hidden">
+    <div className="bg-card rounded-xl overflow-hidden shadow-sm md:shadow-none">
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-foreground">{dateLabel}</span>
