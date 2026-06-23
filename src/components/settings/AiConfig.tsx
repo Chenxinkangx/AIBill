@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { Card } from '@/components/ui/card'
+import FormField from '@/components/common/FormField'
+import { NativeSelect } from '@/components/ui/native-select'
+import { Input } from '@/components/ui/input'
 
 export default function AiConfig() {
   const aiApiKey = useSettingsStore((s) => s.aiApiKey)
@@ -26,26 +29,27 @@ export default function AiConfig() {
       {/* AI Model */}
       <Card className="rounded-xl px-4 py-3 space-y-1">
         <label className="text-xs text-muted-foreground">AI 模型</label>
-        <select
+        <NativeSelect
           value={settings?.aiModel ?? 'deepseek-v4-flash'}
           onChange={(e) => updateSettings({ aiModel: e.target.value })}
-          className="w-full text-sm text-foreground outline-none bg-transparent"
-        >
-          <option value="deepseek-v4-flash">DeepSeek V4 Flash</option>
-          <option value="deepseek-v4-pro">DeepSeek V4 Pro</option>
-        </select>
+          options={[
+            { value: 'deepseek-v4-flash', label: 'DeepSeek V4 Flash' },
+            { value: 'deepseek-v4-pro', label: 'DeepSeek V4 Pro' },
+          ]}
+          className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0"
+        />
       </Card>
 
       {/* API Key */}
       <Card className="rounded-xl px-4 py-3 space-y-1">
         <label className="text-xs text-muted-foreground">API Key</label>
         <div className="flex items-center gap-2">
-          <input
+          <Input
             type={showKey ? 'text' : 'password'}
             value={aiApiKey}
             onChange={(e) => setAiApiKey(e.target.value)}
             placeholder="sk-..."
-            className="flex-1 text-sm text-foreground outline-none bg-transparent placeholder:text-muted-foreground"
+            className="flex-1 h-auto border-0 bg-transparent p-0 text-sm shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
           />
           <button
             onClick={() => setShowKey(!showKey)}
@@ -62,9 +66,7 @@ export default function AiConfig() {
             </button>
           )}
         </div>
-        <p className="text-xs text-muted-foreground mt-1">
-          API Key 仅保存在本机浏览器，不会上传到任何服务器
-        </p>
+        <FormField description="API Key 仅保存在本机浏览器，不会上传到任何服务器" />
       </Card>
     </div>
   )

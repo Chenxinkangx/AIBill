@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import type { PointerEvent } from 'react'
 import type { RecordItem, BudgetCategory, Tag } from '@/types'
-import { formatMoney } from '@/utils/money'
+import MoneyText from '@/components/common/MoneyText'
 import RecordActions from '@/components/records/RecordActions'
 import ConfirmDialog from '@/components/common/ConfirmDialog'
 import { deleteRecord } from '@/services/record/recordService'
@@ -133,14 +133,13 @@ export default function RecordCard({ record, categoryName, categories, tags, onU
             </div>
           </div>
           <div className="flex shrink-0 flex-col items-end gap-0.5">
-            <span
-              className={`text-sm font-semibold ${
-                record.type === 'income' ? 'text-budget-green' : 'text-foreground'
-              }`}
-            >
-              {record.type === 'income' ? '+' : '-'}
-              {formatMoney(record.amount)}
-            </span>
+            <MoneyText
+              amount={record.amount}
+              type={record.type === 'income' ? 'income' : 'expense'}
+              size="sm"
+              showSign
+              className="tabular-nums"
+            />
             <span className="text-xs text-muted-foreground">{expanded ? '收起' : '详情'}</span>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { NativeSelect } from '@/components/ui/native-select'
 import type { ParsedRecordItem, BudgetCategory, Tag } from '@/types'
 import TagSelector from '@/components/common/TagSelector'
 
@@ -50,10 +51,10 @@ export default function AiParseResultList({
                     请确认
                   </span>
                 )}
-                <input
+                <Input
                   value={item.title}
                   onChange={(e) => onUpdate(index, 'title', e.target.value)}
-                  className="text-sm font-medium text-foreground outline-none bg-transparent flex-1 min-w-0"
+                  className="text-sm font-medium text-foreground outline-none bg-transparent flex-1 min-w-0 border-0 shadow-none p-0 h-auto focus-visible:ring-0"
                 />
               </div>
               <Button
@@ -115,12 +116,12 @@ export default function AiParseResultList({
                 ))}
               </select>
               <span className="hidden sm:inline text-muted-foreground">|</span>
-              <input
+              <Input
                 type="date"
                 value={item.date}
                 onChange={(e) => onUpdate(index, 'date', e.target.value)}
                 aria-label="日期"
-                className="w-full min-w-0 px-3 py-2 bg-muted rounded-xl border border-transparent text-sm text-foreground outline-none focus:bg-background focus:border-ring sm:w-auto sm:bg-transparent sm:px-0 sm:py-0 sm:text-xs sm:text-muted-foreground"
+                className="w-full min-w-0 px-3 py-2 bg-muted rounded-xl border border-transparent text-sm text-foreground outline-none focus:bg-background focus:border-ring sm:w-auto sm:bg-transparent sm:px-0 sm:py-0 sm:text-xs sm:text-muted-foreground shadow-none"
               />
             </div>
             <div>

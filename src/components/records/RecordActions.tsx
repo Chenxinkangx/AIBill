@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { NativeSelect } from '@/components/ui/native-select'
 import ConfirmDialog from '@/components/common/ConfirmDialog'
 import { updateRecord, deleteRecord } from '@/services/record/recordService'
 import type { RecordItem, BudgetCategory, Tag } from '@/types'
@@ -86,21 +87,20 @@ export default function RecordActions({
   if (editing) {
     return (
       <div className="bg-muted/50 rounded-xl p-4 mt-2 space-y-3 border border-border">
-        <input
+        <Input
           value={form.title}
           onChange={(e) => setForm({ ...form, title: e.target.value })}
           placeholder="内容"
-          className="w-full px-3 py-2 rounded-lg border border-border text-sm outline-none focus:border-ring"
         />
         <div className="grid grid-cols-2 gap-2">
-          <input
+          <Input
             type="number"
             value={form.amount}
             onChange={(e) => setForm({ ...form, amount: Number(e.target.value) })}
             placeholder="金额"
-            className="w-full px-3 py-2 rounded-lg border border-border text-sm outline-none focus:border-ring [appearance:textfield]"
+            className="[appearance:textfield]"
           />
-          <select
+          <NativeSelect
             value={form.type}
             onChange={(e) => {
               const type = e.target.value as RecordItem['type']
@@ -110,35 +110,30 @@ export default function RecordActions({
                   : categories.find((c) => c.budgetable && c.id !== 'income')?.id ?? ''
               setForm({ ...form, type, budgetCategoryId: nextCategory })
             }}
-            className="w-full px-3 py-2 rounded-lg border border-border text-sm outline-none focus:border-ring bg-card"
-          >
-            <option value="expense">支出</option>
-            <option value="income">收入</option>
-          </select>
+            options={[
+              { value: 'expense', label: '支出' },
+              { value: 'income', label: '收入' },
+            ]}
+          />
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <select
+          <NativeSelect
             value={form.budgetCategoryId}
             onChange={(e) => setForm({ ...form, budgetCategoryId: e.target.value })}
-            className="w-full px-3 py-2 rounded-lg border border-border text-sm outline-none focus:border-ring bg-card"
-          >
-            {categories
-              .filter((c) =>
-                form.type === 'income'
-                  ? c.id === 'income'
-                  : (c.budgetable && !c.archived) || c.id === record.budgetCategoryId
-              )
-              .map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-          </select>
-          <input
+            options={[
+              ...categories
+                .filter((c) =>
+                  form.type === 'income'
+                    ? c.id === 'income'
+                    : (c.budgetable && !c.archived) || c.id === record.budgetCategoryId
+                )
+                .map((cat) => ({ value: cat.id, label: cat.name })),
+            ]}
+          />
+          <Input
             type="date"
             value={form.date}
             onChange={(e) => setForm({ ...form, date: e.target.value })}
-            className="w-full px-3 py-2 rounded-lg border border-border text-sm outline-none focus:border-ring"
           />
         </div>
         <div>
@@ -150,11 +145,10 @@ export default function RecordActions({
             onChange={(tagIds) => setForm({ ...form, tagIds })}
           />
         </div>
-        <input
+        <Input
           value={form.note}
           onChange={(e) => setForm({ ...form, note: e.target.value })}
           placeholder="备注"
-          className="w-full px-3 py-2 rounded-lg border border-border text-sm outline-none focus:border-ring"
         />
         {error && <p className="text-xs text-destructive">{error}</p>}
         <div className="flex gap-2">

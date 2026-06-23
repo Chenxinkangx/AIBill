@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { Download, Upload, Trash2, ChevronRight } from 'lucide-react'
 import { downloadBackup } from '@/services/backup/export'
 import { importBackupFromFile } from '@/services/backup/import'
 import { db } from '@/db/index'
@@ -87,37 +88,64 @@ export default function DataManagement() {
     <div className="space-y-3">
       <h2 className="text-sm font-medium text-muted-foreground">数据管理</h2>
 
-      <Card
-        onClick={handleExport}
-        className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm text-foreground cursor-pointer hover:bg-muted/80 transition-colors"
-      >
-        <span>导出 JSON 备份</span>
-        <span className="text-muted-foreground">📥</span>
+      <Card className="rounded-xl divide-y divide-border">
+        <button
+          type="button"
+          onClick={handleExport}
+          className="flex w-full items-center justify-between px-4 py-3.5 text-left hover:bg-muted/50 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
+              <Download className="size-4 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-foreground">导出 JSON 备份</p>
+              <p className="text-xs text-muted-foreground">保存全部数据到文件</p>
+            </div>
+          </div>
+          <ChevronRight className="size-4 text-muted-foreground" />
+        </button>
+
+        <label className="block">
+          <div className="flex w-full items-center justify-between px-4 py-3.5 text-left hover:bg-muted/50 transition-colors cursor-pointer">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
+                <Upload className="size-4 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-foreground">{importing ? '导入中...' : '导入 JSON 恢复'}</p>
+                <p className="text-xs text-muted-foreground">从备份文件恢复数据</p>
+              </div>
+            </div>
+            <ChevronRight className="size-4 text-muted-foreground" />
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            onChange={handleImport}
+            className="hidden"
+            disabled={importing}
+          />
+        </label>
+
+        <button
+          type="button"
+          onClick={() => setClearing(true)}
+          className="flex w-full items-center justify-between px-4 py-3.5 text-left hover:bg-muted/50 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-destructive/10">
+              <Trash2 className="size-4 text-destructive" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-foreground">清空所有数据</p>
+              <p className="text-xs text-muted-foreground">清除全部账单和设置</p>
+            </div>
+          </div>
+          <ChevronRight className="size-4 text-muted-foreground" />
+        </button>
       </Card>
-
-      <label className="block">
-        <Card className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm text-foreground cursor-pointer hover:bg-muted/80 transition-colors">
-          <span>{importing ? '导入中...' : '导入 JSON 恢复'}</span>
-          <span className="text-muted-foreground">📤</span>
-        </Card>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".json"
-          onChange={handleImport}
-          className="hidden"
-          disabled={importing}
-        />
-      </label>
-
-      <Button
-        variant="destructive"
-        onClick={() => setClearing(true)}
-        className="w-full flex items-center justify-between"
-      >
-        <span>清空所有数据</span>
-        <span>🗑️</span>
-      </Button>
 
       <Toast toast={toast} />
 

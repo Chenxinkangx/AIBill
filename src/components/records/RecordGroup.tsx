@@ -1,6 +1,7 @@
 import type { RecordItem, BudgetCategory, Tag } from '@/types'
 import RecordCard from '@/components/records/RecordCard'
 import { sumMoney } from '@/utils/money'
+import MoneyText from '@/components/common/MoneyText'
 
 interface Props {
   date: string
@@ -58,10 +59,10 @@ export default function RecordGroup({
         </div>
         <div className="flex items-center gap-3 text-xs">
           {totalExpense > 0 && (
-            <span className="text-muted-foreground">支出 ¥{totalExpense}</span>
+            <MoneyText amount={totalExpense} type="expense" size="sm" />
           )}
           {totalIncome > 0 && (
-            <span className="text-budget-green">收入 ¥{totalIncome}</span>
+            <MoneyText amount={totalIncome} type="income" size="sm" showSign />
           )}
         </div>
       </div>
