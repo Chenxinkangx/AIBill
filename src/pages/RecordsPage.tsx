@@ -61,7 +61,7 @@ export default function RecordsPage() {
       <div className="space-y-4">
         <MonthPicker />
         <div className="flex items-center justify-center py-20">
-          <p className="text-gray-400">加载中...</p>
+          <p className="text-muted-foreground">加载中...</p>
         </div>
       </div>
     )

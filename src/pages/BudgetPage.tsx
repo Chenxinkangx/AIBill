@@ -189,7 +189,7 @@ export default function BudgetPage() {
       <div className="space-y-4">
         <MonthPicker />
         <div className="flex items-center justify-center py-20">
-          <p className="text-gray-400">加载中...</p>
+          <p className="text-muted-foreground">加载中...</p>
         </div>
       </div>
     )
@@ -322,7 +322,7 @@ export default function BudgetPage() {
 
       {/* Saving indicator */}
       {saving && (
-        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-4 py-2 rounded-full">
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-foreground text-background text-xs px-4 py-2 rounded-full">
           保存中...
         </div>
       )}

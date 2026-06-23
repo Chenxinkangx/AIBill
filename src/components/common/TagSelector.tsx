@@ -36,8 +36,8 @@ export default function TagSelector({ tags, selectedIds, onChange, compact = fal
               compact ? 'px-2.5 py-1 text-xs' : 'px-3 py-1.5 text-sm'
             } ${
               selected
-                ? 'border-gray-700 bg-foreground text-white shadow-sm'
-                : 'border-border bg-white text-foreground hover:border-gray-300'
+                ? 'border-foreground bg-foreground text-background shadow-sm'
+                : 'border-border bg-card text-foreground hover:border-muted-foreground'
             }`}
           >
             <span

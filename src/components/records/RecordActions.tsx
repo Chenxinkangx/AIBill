@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import ConfirmDialog from '@/components/common/ConfirmDialog'
 import { updateRecord, deleteRecord } from '@/services/record/recordService'
 import type { RecordItem, BudgetCategory, Tag } from '@/types'
@@ -109,7 +110,7 @@ export default function RecordActions({
                   : categories.find((c) => c.budgetable && c.id !== 'income')?.id ?? ''
               setForm({ ...form, type, budgetCategoryId: nextCategory })
             }}
-            className="w-full px-3 py-2 rounded-lg border border-border text-sm outline-none focus:border-ring bg-white"
+            className="w-full px-3 py-2 rounded-lg border border-border text-sm outline-none focus:border-ring bg-card"
           >
             <option value="expense">支出</option>
             <option value="income">收入</option>
@@ -119,7 +120,7 @@ export default function RecordActions({
           <select
             value={form.budgetCategoryId}
             onChange={(e) => setForm({ ...form, budgetCategoryId: e.target.value })}
-            className="w-full px-3 py-2 rounded-lg border border-border text-sm outline-none focus:border-ring bg-white"
+            className="w-full px-3 py-2 rounded-lg border border-border text-sm outline-none focus:border-ring bg-card"
           >
             {categories
               .filter((c) =>

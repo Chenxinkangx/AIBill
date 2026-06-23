@@ -88,7 +88,7 @@ export default function AiParseResultList({
                   onUpdate(index, 'budgetCategoryName', nextCategory?.name ?? '')
                 }}
                 aria-label="类型"
-                className="w-full min-w-0 px-3 py-2 bg-muted rounded-xl border border-transparent text-sm text-foreground outline-none focus:bg-white focus:border-ring sm:w-auto sm:bg-transparent sm:px-0 sm:py-0"
+                className="w-full min-w-0 px-3 py-2 bg-muted rounded-xl border border-transparent text-sm text-foreground outline-none focus:bg-background focus:border-ring sm:w-auto sm:bg-transparent sm:px-0 sm:py-0"
               >
                 <option value="expense">支出</option>
                 <option value="income">收入</option>
@@ -106,7 +106,7 @@ export default function AiParseResultList({
                   onUpdate(index, 'budgetCategoryName', cat?.name ?? '')
                 }}
                 aria-label="预算分类"
-                className="w-full min-w-0 px-3 py-2 bg-muted rounded-xl border border-transparent text-sm text-foreground outline-none focus:bg-white focus:border-ring sm:w-auto sm:bg-transparent sm:px-0 sm:py-0"
+                className="w-full min-w-0 px-3 py-2 bg-muted rounded-xl border border-transparent text-sm text-foreground outline-none focus:bg-background focus:border-ring sm:w-auto sm:bg-transparent sm:px-0 sm:py-0"
               >
                 {getOptionsForType(item.type).map((cat) => (
                   <option key={cat.id} value={cat.id}>
@@ -120,7 +120,7 @@ export default function AiParseResultList({
                 value={item.date}
                 onChange={(e) => onUpdate(index, 'date', e.target.value)}
                 aria-label="日期"
-                className="w-full min-w-0 px-3 py-2 bg-muted rounded-xl border border-transparent text-sm text-foreground outline-none focus:bg-white focus:border-ring sm:w-auto sm:bg-transparent sm:px-0 sm:py-0 sm:text-xs sm:text-muted-foreground"
+                className="w-full min-w-0 px-3 py-2 bg-muted rounded-xl border border-transparent text-sm text-foreground outline-none focus:bg-background focus:border-ring sm:w-auto sm:bg-transparent sm:px-0 sm:py-0 sm:text-xs sm:text-muted-foreground"
               />
             </div>
             <div>

@@ -104,7 +104,7 @@ export default function RecordCard({ record, categoryName, categories, tags, onU
       </div>
 
       <div
-        className="relative touch-pan-y bg-white px-4 py-3 transition-transform duration-200 ease-out"
+        className="relative touch-pan-y bg-card px-4 py-3 transition-transform duration-200 ease-out"
         style={{ transform: `translateX(${offset}px)` }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -170,7 +170,7 @@ export default function RecordCard({ record, categoryName, categories, tags, onU
                 <span className="text-muted-foreground">标签</span>
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
                   {recordTags.map((tag) => (
-                    <span key={tag.id} className="rounded-full bg-white px-2 py-1 text-xs font-medium text-foreground ring-1 ring-border">
+                    <span key={tag.id} className="rounded-full bg-background px-2 py-1 text-xs font-medium text-foreground ring-1 ring-border">
                       <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full" style={{ backgroundColor: tag.color }} />
                       {tag.name}
                     </span>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useSettingsStore } from '@/stores/settingsStore'
+import { Card } from '@/components/ui/card'
 
 export default function AiConfig() {
   const aiApiKey = useSettingsStore((s) => s.aiApiKey)
@@ -23,7 +24,7 @@ export default function AiConfig() {
       <h2 className="text-sm font-medium text-muted-foreground">AI 配置</h2>
 
       {/* AI Model */}
-      <div className="bg-white rounded-xl px-4 py-3 space-y-1">
+      <Card className="rounded-xl px-4 py-3 space-y-1">
         <label className="text-xs text-muted-foreground">AI 模型</label>
         <select
           value={settings?.aiModel ?? 'deepseek-v4-flash'}
@@ -33,10 +34,10 @@ export default function AiConfig() {
           <option value="deepseek-v4-flash">DeepSeek V4 Flash</option>
           <option value="deepseek-v4-pro">DeepSeek V4 Pro</option>
         </select>
-      </div>
+      </Card>
 
       {/* API Key */}
-      <div className="bg-white rounded-xl px-4 py-3 space-y-1">
+      <Card className="rounded-xl px-4 py-3 space-y-1">
         <label className="text-xs text-muted-foreground">API Key</label>
         <div className="flex items-center gap-2">
           <input
@@ -64,7 +65,7 @@ export default function AiConfig() {
         <p className="text-xs text-muted-foreground mt-1">
           API Key 仅保存在本机浏览器，不会上传到任何服务器
         </p>
-      </div>
+      </Card>
     </div>
   )
 }

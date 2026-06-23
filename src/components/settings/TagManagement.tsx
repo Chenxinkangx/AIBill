@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Card } from '@/components/ui/card'
 import { db } from '@/db/index'
 import type { Tag } from '@/types'
 import { archiveTag, createTag, renameTag, restoreTag } from '@/services/tag/tagService'
@@ -73,7 +74,7 @@ export default function TagManagement() {
         <p className="mt-1 text-xs text-muted-foreground">标签用于筛选和分析，不会扣减预算</p>
       </div>
 
-      <div className="rounded-xl bg-white p-4 space-y-3">
+      <Card className="rounded-xl p-4 space-y-3">
         <div className="flex gap-2">
           <Input
             value={newName}
@@ -142,10 +143,10 @@ export default function TagManagement() {
             />
           </div>
         )}
-      </div>
+      </Card>
 
       {archived.length > 0 && (
-        <div className="rounded-xl bg-white px-4 py-2">
+        <Card className="rounded-xl px-4 py-2">
           <div className="border-b border-border py-2 text-xs font-medium text-muted-foreground">
             已归档标签
           </div>
@@ -165,7 +166,7 @@ export default function TagManagement() {
             onPageChange={setArchivedPage}
             label="已归档标签"
           />
-        </div>
+        </Card>
       )}
       <Toast toast={toast} />
     </div>

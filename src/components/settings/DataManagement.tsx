@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { downloadBackup } from '@/services/backup/export'
 import { importBackupFromFile } from '@/services/backup/import'
 import { db } from '@/db/index'
@@ -86,19 +87,19 @@ export default function DataManagement() {
     <div className="space-y-3">
       <h2 className="text-sm font-medium text-muted-foreground">数据管理</h2>
 
-      <button
+      <Card
         onClick={handleExport}
-        className="w-full flex items-center justify-between px-4 py-3 bg-white rounded-xl text-sm text-foreground hover:bg-muted/80 transition-colors"
+        className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm text-foreground cursor-pointer hover:bg-muted/80 transition-colors"
       >
         <span>导出 JSON 备份</span>
         <span className="text-muted-foreground">📥</span>
-      </button>
+      </Card>
 
       <label className="block">
-        <div className="w-full flex items-center justify-between px-4 py-3 bg-white rounded-xl text-sm text-foreground hover:bg-muted/80 transition-colors cursor-pointer">
+        <Card className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm text-foreground cursor-pointer hover:bg-muted/80 transition-colors">
           <span>{importing ? '导入中...' : '导入 JSON 恢复'}</span>
           <span className="text-muted-foreground">📤</span>
-        </div>
+        </Card>
         <input
           ref={fileInputRef}
           type="file"
